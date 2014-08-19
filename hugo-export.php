@@ -1,8 +1,8 @@
 <?php
 
 /*
-Plugin Name: WordPress to Jekyll Exporter
-Description: Exports WordPress posts, pages, and options as YAML files parsable by Jekyll
+Plugin Name: WordPress to Hugo Exporter
+Description: Exports WordPress posts, pages, and options as YAML files parsable by Hugo
 Version: 1.3
 Author: Benjamin J. Balter
 Author URI: http://ben.balter.com
@@ -24,10 +24,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-class Jekyll_Export
+class Hugo_Export
 {
 
-    private $zip_folder = 'jekyll-export/'; //folder zip file extracts to
+    private $zip_folder = 'hugo-export/'; //folder zip file extracts to
 
     public $rename_options = array('site', 'blog'); //strings to strip from option keys on export
 
@@ -63,7 +63,7 @@ class Jekyll_Export
         if (get_current_screen()->id != 'export')
             return;
 
-        if (!isset($_GET['type']) || $_GET['type'] != 'jekyll')
+        if (!isset($_GET['type']) || $_GET['type'] != 'hugo')
             return;
 
         if (!current_user_can('manage_options'))
@@ -79,7 +79,7 @@ class Jekyll_Export
     function register_menu()
     {
 
-        add_management_page(__('Export to Jekyll', 'jekyll-export'), __('Export to Jekyll', 'jekyll-export'), 'manage_options', 'export.php?type=jekyll');
+        add_management_page(__('Export to Hugo', 'hugo-export'), __('Export to Hugo', 'hugo-export'), 'manage_options', 'export.php?type=hugo');
     }
 
     /**
@@ -106,7 +106,7 @@ class Jekyll_Export
             'layout'  => get_post_type($post),
         );
 
-        //preserve exact permalink, since Jekyll doesn't support redirection
+        //preserve exact permalink, since Hugo doesn't support redirection
         if ('page' != $post->post_type) {
             $output['permalink'] = str_replace(home_url(), '', get_permalink($post));
         }
@@ -134,7 +134,7 @@ class Jekyll_Export
 
             $terms = wp_get_post_terms($post, $tax);
 
-            //convert tax name for Jekyll
+            //convert tax name for Hugo
             switch ($tax) {
                 case 'post_tag':
                     $tax = 'tags';
@@ -191,7 +191,7 @@ class Jekyll_Export
                     unset($meta[$key]);
             }
 
-            // Jekyll doesn't like word-wrapped permalinks
+            // Hugo doesn't like word-wrapped permalinks
             $output = Spyc::YAMLDump($meta, false, 0);
 
             $output .= "---\n";
@@ -238,8 +238,8 @@ class Jekyll_Export
         WP_Filesystem();
 
         $temp_dir  = get_temp_dir();
-        $this->dir = $temp_dir . 'wp-jekyll-' . md5(time()) . '/';
-        $this->zip = $temp_dir . 'wp-jekyll.zip';
+        $this->dir = $temp_dir . 'wp-hugo-' . md5(time()) . '/';
+        $this->zip = $temp_dir . 'wp-hugo.zip';
         $wp_filesystem->mkdir($this->dir);
         $wp_filesystem->mkdir($this->dir . '_posts/');
         $wp_filesystem->mkdir($this->dir . 'wp-content/');
@@ -266,7 +266,7 @@ class Jekyll_Export
             if (substr($key, 0, 1) == '_')
                 unset($options[$key]);
 
-            //strip site and blog from key names, since it will become site. when in Jekyll
+            //strip site and blog from key names, since it will become site. when in Hugo
             foreach ($this->rename_options as $rename) {
 
                 $len = strlen($rename);
@@ -361,7 +361,7 @@ class Jekyll_Export
 
         //send headers
         @header('Content-Type: application/zip');
-        @header("Content-Disposition: attachment; filename=jekyll-export.zip");
+        @header("Content-Disposition: attachment; filename=hugo-export.zip");
         @header('Content-Length: ' . filesize($this->zip));
 
         //read file
@@ -455,11 +455,11 @@ class Jekyll_Export
     }
 }
 
-$je = new Jekyll_Export();
+$je = new Hugo_Export();
 
 if (defined('WP_CLI') && WP_CLI) {
 
-    class Jekyll_Export_Command extends WP_CLI_Command
+    class Hugo_Export_Command extends WP_CLI_Command
     {
 
         function __invoke()
@@ -470,5 +470,5 @@ if (defined('WP_CLI') && WP_CLI) {
         }
     }
 
-    WP_CLI::add_command('jekyll-export', 'Jekyll_Export_Command');
+    WP_CLI::add_command('hugo-export', 'Hugo_Export_Command');
 }

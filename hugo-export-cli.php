@@ -4,15 +4,15 @@
  *
  * Usage:
  *
- *     $ php jekyll-export-cli.php > my-jekyll-files.zip
+ *     $ php hugo-export-cli.php > my-hugo-files.zip
  *
- * Must be run in the wordpress-to-jekyll-exporter/ directory.
+ * Must be run in the wordpress-to-hugo-exporter/ directory.
  *
  */
 
 include "../../../wp-load.php";
 include "../../../wp-admin/includes/file.php";
-require_once "jekyll-export.php"; //ensure plugin is "activated"
+require_once "hugo-export.php";
 
-$je = new Jekyll_Export();
+$je = new Hugo_Export();
 $je->export();
