@@ -15,4 +15,7 @@ include "../../../wp-admin/includes/file.php";
 require_once "hugo-export.php";
 
 $je = new Hugo_Export();
+if (isset($argv[1]) && 'null' !== strtolower($argv[1]) && is_dir($argv[1])) {
+    $je->setTempDir($argv[1]);
+}
 $je->export();

@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Hugo_Export
 {
-
+    protected $_tempDir = null;
     private $zip_folder = 'hugo-export/'; //folder zip file extracts to
 
     public $rename_options = array('site', 'blog'); //strings to strip from option keys on export
@@ -212,12 +212,10 @@ class Hugo_Export
     {
 
         foreach ($this->required_classes as $class => $path) {
-
-            if (class_exists($class))
+            if (class_exists($class)) {
                 continue;
-
+            }
             $path = str_replace("%pwd%", dirname(__FILE__), $path);
-
             require_once($path);
         }
     }
@@ -237,9 +235,8 @@ class Hugo_Export
 
         WP_Filesystem();
 
-        $temp_dir  = get_temp_dir();
-        $this->dir = $temp_dir . 'wp-hugo-' . md5(time()) . '/';
-        $this->zip = $temp_dir . 'wp-hugo.zip';
+        $this->dir = $this->getTempDir() . 'wp-hugo-' . md5(time()) . '/';
+        $this->zip = $this->getTempDir() . 'wp-hugo.zip';
         $wp_filesystem->mkdir($this->dir);
         $wp_filesystem->mkdir($this->dir . '_posts/');
         $wp_filesystem->mkdir($this->dir . 'wp-content/');
@@ -247,9 +244,9 @@ class Hugo_Export
         $this->convert_options();
         $this->convert_posts();
         $this->convert_uploads();
-        $this->zip();
-        $this->send();
-        $this->cleanup();
+//        $this->zip();
+//        $this->send();
+//        $this->cleanup();
     }
 
     /**
@@ -452,6 +449,25 @@ class Hugo_Export
         // Clean up
         $dir->close();
         return true;
+    }
+
+    /**
+     * @param null $tempDir
+     */
+    public function setTempDir($tempDir)
+    {
+        $this->_tempDir = $tempDir . (false === strpos($tempDir, DIRECTORY_SEPARATOR) ? DIRECTORY_SEPARATOR : '');
+    }
+
+    /**
+     * @return null
+     */
+    public function getTempDir()
+    {
+        if (null === $this->_tempDir) {
+            $this->_tempDir = get_temp_dir();
+        }
+        return $this->_tempDir;
     }
 }
 
