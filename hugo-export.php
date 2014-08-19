@@ -229,14 +229,17 @@ class Jekyll_Export
     {
         global $wp_filesystem;
 
+        define('DOING_JEKYLL_EXPORT', true);
+
         $this->require_classes();
 
         add_filter('filesystem_method', array(&$this, 'filesystem_method_filter'));
 
         WP_Filesystem();
 
-        $temp_dir  = '';
+        $temp_dir  = get_temp_dir();
         $this->dir = $temp_dir . 'wp-jekyll-' . md5(time()) . '/';
+        $this->zip = $temp_dir . 'wp-jekyll.zip';
         $wp_filesystem->mkdir($this->dir);
         $wp_filesystem->mkdir($this->dir . '_posts/');
         $wp_filesystem->mkdir($this->dir . 'wp-content/');
@@ -244,6 +247,9 @@ class Jekyll_Export
         $this->convert_options();
         $this->convert_posts();
         $this->convert_uploads();
+        $this->zip();
+        $this->send();
+        $this->cleanup();
     }
 
     /**
@@ -305,7 +311,47 @@ class Jekyll_Export
         $wp_filesystem->put_contents($this->dir . $filename, $output);
     }
 
+    /**
+     * Zip temp dir
+     */
+    function zip()
+    {
 
+        //create zip
+        $zip = new ZipArchive();
+        $zip->open($this->zip, ZIPARCHIVE::CREATE);
+        $this->_zip($this->dir, $zip);
+        $zip->close();
+    }
+
+    /**
+     * Helper function to add a file to the zip
+     */
+    function _zip($dir, &$zip)
+    {
+
+        //loop through all files in directory
+        foreach (glob(trailingslashit($dir) . '*') as $path) {
+
+            // periodically flush the zipfile to avoid OOM errors
+            if ((($zip->numFiles + 1) % 250) == 0) {
+                $filename = $zip->filename;
+                $zip->close();
+                $zip->open($filename);
+            }
+
+            if (is_dir($path)) {
+                $this->_zip($path, $zip);
+                continue;
+            }
+
+            //make path within zip relative to zip base, not server root
+            $local_path = '/' . str_replace($this->dir, $this->zip_folder, $path);
+
+            //add file
+            $zip->addFile(realpath($path), $local_path);
+        }
+    }
 
     /**
      * Send headers and zip file to user
@@ -322,6 +368,18 @@ class Jekyll_Export
         ob_clean();
         flush();
         readfile($this->zip);
+    }
+
+    /**
+     * Clear temp files
+     */
+    function cleanup()
+    {
+
+        global $wp_filesystem;
+
+        $wp_filesystem->delete($this->dir, true);
+        $wp_filesystem->delete($this->zip);
     }
 
     /**
