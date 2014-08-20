@@ -280,9 +280,9 @@ class Hugo_Export
         $this->convert_options();
         $this->convert_posts();
         $this->convert_uploads();
-//        $this->zip();
-//        $this->send();
-//        $this->cleanup();
+        $this->zip();
+        $this->send();
+        $this->cleanup();
     }
 
     /**
@@ -391,6 +391,10 @@ class Hugo_Export
      */
     function send()
     {
+        if ('cli' === php_sapi_name()) {
+            echo "\nThis is your file!\n$this->zip\n";
+            return null;
+        }
 
         //send headers
         @header('Content-Type: application/zip');
@@ -408,11 +412,11 @@ class Hugo_Export
      */
     function cleanup()
     {
-
         global $wp_filesystem;
-
         $wp_filesystem->delete($this->dir, true);
-        $wp_filesystem->delete($this->zip);
+        if ('cli' !== php_sapi_name()) {
+            $wp_filesystem->delete($this->zip);
+        }
     }
 
     /**
