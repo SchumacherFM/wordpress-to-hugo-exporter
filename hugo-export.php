@@ -100,27 +100,51 @@ class Hugo_Export
     {
 
         $output = array(
-            'title'   => get_the_title($post),
-            'author'  => get_userdata($post->post_author)->display_name,
-            'excerpt' => $post->post_excerpt,
-            'layout'  => get_post_type($post),
+            'title'  => get_the_title($post),
+            'author' => get_userdata($post->post_author)->display_name,
+            'layout' => get_post_type($post),
         );
+        if (false === empty($post->post_excerpt)) {
+            $output['excerpt'] = $post->post_excerpt;
+        }
 
-        //preserve exact permalink, since Hugo doesn't support redirection
-        if ('page' != $post->post_type) {
+        //preserve exact permalink, since Hugo doesn't support redirection?
+        if ('page' !== $post->post_type) {
             $output['permalink'] = str_replace(home_url(), '', get_permalink($post));
         }
 
         //convert traditional post_meta values, hide hidden values
         foreach (get_post_custom($post->ID) as $key => $value) {
-
-            if (substr($key, 0, 1) == '_')
+            if (substr($key, 0, 1) == '_') {
                 continue;
-
-            $output[$key] = $value;
+            }
+            if (false === $this->_isEmpty($value)) {
+                $output[$key] = $value;
+            }
         }
 
         return $output;
+    }
+
+    protected function _isEmpty($value)
+    {
+        if (true === is_array($value)) {
+            if (true === empty($value)) {
+                return true;
+            }
+            if (1 === count($value) && true === empty($value[0])) {
+                return true;
+            }
+            return false;
+//            $isEmpty=true;
+//            foreach($value as $k=>$v){
+//                if(true === empty($v)){
+//                    $isEmpty
+//                }
+//            }
+//            return $isEmpty;
+        }
+        return true === empty($value);
     }
 
     /**
@@ -182,13 +206,12 @@ class Hugo_Export
         foreach ($this->get_posts() as $postID) {
             $post = get_post($postID);
             setup_postdata($post);
-
             $meta = array_merge($this->convert_meta($post), $this->convert_terms($postID));
-
             // remove falsy values, which just add clutter
             foreach ($meta as $key => $value) {
-                if (!is_numeric($value) && !$value)
+                if (!is_numeric($value) && !$value) {
                     unset($meta[$key]);
+                }
             }
 
             // Hugo doesn't like word-wrapped permalinks
