@@ -353,7 +353,9 @@ class Hugo_Export
 
         //create zip
         $zip = new ZipArchive();
-        $zip->open($this->zip, ZIPARCHIVE::CREATE);
+        $err = $zip->open($this->zip, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
+	if ($err !== TRUE)
+		die("Failed to create '$this->zip' err: $err");
         $this->_zip($this->dir, $zip);
         $zip->close();
     }
