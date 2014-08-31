@@ -28,6 +28,7 @@ class Hugo_Export
 {
     protected $_tempDir = null;
     private $zip_folder = 'hugo-export/'; //folder zip file extracts to
+    private $post_folder = '_posts/'; //folder to place posts within
 
     public $rename_options = array('site', 'blog'); //strings to strip from option keys on export
 
@@ -274,7 +275,7 @@ class Hugo_Export
         $this->dir = $this->getTempDir() . 'wp-hugo-' . md5(time()) . '/';
         $this->zip = $this->getTempDir() . 'wp-hugo.zip';
         $wp_filesystem->mkdir($this->dir);
-        $wp_filesystem->mkdir($this->dir . '_posts/');
+        $wp_filesystem->mkdir($this->dir . $this->post_folder);
         $wp_filesystem->mkdir($this->dir . 'wp-content/');
 
         $this->convert_options();
@@ -338,7 +339,7 @@ class Hugo_Export
             $wp_filesystem->mkdir($this->dir . $post->post_name);
             $filename = $post->post_name . '/index.md';
         } else {
-            $filename = '_posts/' . date('Y-m-d', strtotime($post->post_date)) . '-' . $post->post_name . '.md';
+            $filename = $this->post_folder . date('Y-m-d', strtotime($post->post_date)) . '-' . $post->post_name . '.md';
         }
 
         $wp_filesystem->put_contents($this->dir . $filename, $output);
