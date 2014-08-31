@@ -113,7 +113,7 @@ class Hugo_Export
     function convert_meta(WP_Post $post)
     {
         $output = array(
-            'title'  => get_the_title($post),
+            'title'  => html_entity_decode(get_the_title($post)),
             'author' => get_userdata($post->post_author)->display_name,
             'layout' => get_post_type($post),
             'date'   => $this->_getPostDate($post),
