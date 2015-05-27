@@ -122,7 +122,7 @@ class ConverterExtra extends Converter
             $tag = $this->unstack();
             if (!empty($tag['cssSelector'])) {
                 // {#id.class}
-                $this->out(' {'.$tag['cssSelector'].'}');
+                $this->out(' {' . $tag['cssSelector'] . '}');
             }
         }
         parent::handleHeader($level);
@@ -152,7 +152,7 @@ class ConverterExtra extends Converter
         $output = parent::handleTag_a_converter($tag, $buffer);
         if (!empty($tag['cssSelector'])) {
             // [This link][id]{#id.class}
-            $output .= '{'.$tag['cssSelector'].'}';
+            $output .= '{' . $tag['cssSelector'] . '}';
         }
 
         return $output;
@@ -316,6 +316,9 @@ class ConverterExtra extends Converter
      */
     protected function alignTdContent(&$content, $col)
     {
+        if (!isset($this->table['aligns'][$col])) {
+            $this->table['aligns'][$col] = 'left';
+        }
         switch ($this->table['aligns'][$col]) {
             default:
             case 'left':
@@ -552,12 +555,12 @@ class ConverterExtra extends Converter
     {
         $cssSelector = '';
         if (isset($this->parser->tagAttributes['id'])) {
-            $cssSelector .= '#'.$this->decode($this->parser->tagAttributes['id']);
+            $cssSelector .= '#' . $this->decode($this->parser->tagAttributes['id']);
         }
         if (isset($this->parser->tagAttributes['class'])) {
             $classes = explode(' ', $this->decode($this->parser->tagAttributes['class']));
             $classes = array_filter($classes);
-            $cssSelector .= '.'.join('.', $classes);
+            $cssSelector .= '.' . join('.', $classes);
         }
         return $cssSelector;
     }
