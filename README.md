@@ -4,23 +4,23 @@ Hugo a static site generator written in GoLang: [http://hugo.spf13.com/](http://
 
 This repo is based on [https://github.com/benbalter/wordpress-to-jekyll-exporter](https://github.com/benbalter/wordpress-to-jekyll-exporter)
 
-### Changes:
+### Changes
 
 - mainly for the front matter section
 - renamed jekyll to hugo
 
-## Jekyll Features
+## Hugo Features
 
-One-click WordPress plugin that converts all posts, pages, taxonomies, metadata, and settings to Markdown and YAML which can be dropped into Jekyll.
+One-click WordPress plugin that converts all posts, pages, taxonomies, metadata, and settings to Markdown and YAML which can be dropped into Hugo.
 
 ## Features
 
-* Converts all posts, pages, and settings from WordPress for use in Jekyll
+* Converts all posts, pages, and settings from WordPress for use in Hugo
 * Export what your users see, not what the database stores (runs post content through `the_content` filter prior to export, allowing third-party plugins to modify the output)
 * Converts all `post_content` to Markdown Extra (using Markdownify)
-* Converts all `post_meta` and fields within the `wp_posts` table to YAML front matter for parsing by Jekyll
+* Converts all `post_meta` and fields within the `wp_posts` table to YAML front matter for parsing by Hugo
 * Generates a `_config.yml` with all settings in the `wp_options` table
-* Outputs a single zip file with `_config.yml`, pages, and `_posts` folder containing `.md` files for each post in the proper Jekyll naming convention
+* Outputs a single zip file with `_config.yml`, pages, and `_posts` folder containing `.md` files for each post in the proper Hugo naming convention
 * No settings. Just a single click.
 
 ## Usage
@@ -28,7 +28,7 @@ One-click WordPress plugin that converts all posts, pages, taxonomies, metadata,
 1. Place plugin in `/wp-content/plugins/` folder
 2. Make sure `extension=zip.so` line is uncommented in your `php.ini`
 3. Activate plugin in WordPress dashboard
-4. Select `Export to Jekyll` from the `Tools` menu
+4. Select `Export to Hugo` from the `Tools` menu
 
 ## Command-line Usage
 
@@ -36,12 +36,12 @@ If you're having trouble with your web server timing out before the export is co
 
 It works just like the plugin, but produces the zipfile on STDOUT:
 
-    php jekyll-export-cli.php > jekyll-export.zip
+    php hugo-export-cli.php > hugo-export.zip
 
 Alternatively, if you have [WP-CLI](http://wp-cli.org) installed, you can run:
 
 ```
-wp jekyll-export > export.zip
+wp hugo-export > export.zip
 ```
 
 The WP-CLI version will provide greater compatibility for alternate WordPress environments, such as when `wp-content` isn't in the usual location.
