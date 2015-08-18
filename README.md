@@ -34,9 +34,9 @@ One-click WordPress plugin that converts all posts, pages, taxonomies, metadata,
 
 If you're having trouble with your web server timing out before the export is complete, or if you just like terminal better, you may enjoy the command-line tool.
 
-It works just like the plugin, but produces the zipfile on STDOUT:
+It works just like the plugin, but produces the zipfile at `/tmp/wp-hugo.zip`:
 
-    php hugo-export-cli.php > hugo-export.zip
+    php hugo-export-cli.php
 
 Alternatively, if you have [WP-CLI](http://wp-cli.org) installed, you can run:
 
