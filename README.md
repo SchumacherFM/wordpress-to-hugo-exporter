@@ -20,7 +20,7 @@ One-click WordPress plugin that converts all posts, pages, taxonomies, metadata,
 * Converts all `post_content` to Markdown Extra (using Markdownify)
 * Converts all `post_meta` and fields within the `wp_posts` table to YAML front matter for parsing by Hugo
 * Generates a `config.yaml` with all settings in the `wp_options` table
-* Outputs a single zip file with `config.yaml`, pages, and `posts` folder containing `.md` files for each post in the proper Hugo naming convention
+* Outputs a single zip file with `config.yaml`, pages, and `post` folder containing `.md` files for each post in the proper Hugo naming convention
 * No settings. Just a single click.
 
 ## Usage
