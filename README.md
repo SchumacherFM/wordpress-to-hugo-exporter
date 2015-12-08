@@ -19,8 +19,8 @@ One-click WordPress plugin that converts all posts, pages, taxonomies, metadata,
 * Export what your users see, not what the database stores (runs post content through `the_content` filter prior to export, allowing third-party plugins to modify the output)
 * Converts all `post_content` to Markdown Extra (using Markdownify)
 * Converts all `post_meta` and fields within the `wp_posts` table to YAML front matter for parsing by Hugo
-* Generates a `_config.yml` with all settings in the `wp_options` table
-* Outputs a single zip file with `_config.yml`, pages, and `_posts` folder containing `.md` files for each post in the proper Hugo naming convention
+* Generates a `config.yaml` with all settings in the `wp_options` table
+* Outputs a single zip file with `config.yaml`, pages, and `posts` folder containing `.md` files for each post in the proper Hugo naming convention
 * No settings. Just a single click.
 
 ## Usage
