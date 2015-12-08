@@ -28,11 +28,11 @@ class Hugo_Export
 {
     protected $_tempDir = null;
     private $zip_folder = 'hugo-export/'; //folder zip file extracts to
-    private $post_folder = '_posts/'; //folder to place posts within
+    private $post_folder = 'post/'; //folder to place posts within
 
     public $rename_options = array('site', 'blog'); //strings to strip from option keys on export
 
-    public $options = array( //array of wp_options value to convert to _config.yml
+    public $options = array( //array of wp_options value to convert to config.yaml
         'name',
         'description',
         'url'
@@ -287,7 +287,7 @@ class Hugo_Export
     }
 
     /**
-     * Convert options table to _config.yml file
+     * Convert options table to config.yaml file
      */
     function convert_options()
     {
@@ -324,7 +324,7 @@ class Hugo_Export
         //strip starting "---"
         $output = substr($output, 4);
 
-        $wp_filesystem->put_contents($this->dir . '_config.yml', $output);
+        $wp_filesystem->put_contents($this->dir . 'config.yaml', $output);
     }
 
     /**
