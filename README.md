@@ -1,3 +1,10 @@
+# update
+
+2015.12.05 add a pr to the base line:
+
+1. fix a markdown format display issue
+2. fix the unicode tilte issue that will has wrong url and not be routed.
+
 # WordPress to Hugo Exporter
 
 Hugo a static site generator written in GoLang: [http://hugo.spf13.com/](http://hugo.spf13.com/)
