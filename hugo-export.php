@@ -474,7 +474,9 @@ class Hugo_Export
 
         // Make destination directory
         if (!is_dir($dest)) {
-            $wp_filesystem->mkdir($dest);
+            if (! wp_mkdir_p($dest)){
+                $wp_filesystem->mkdir($dest) or wp_die("Could not created $dest");
+            }
         }
 
         // Loop through the folder
