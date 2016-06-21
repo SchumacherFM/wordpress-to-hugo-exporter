@@ -99,12 +99,12 @@ class Hugo_Export
      *
      * @return bool|string
      */
-    protected function _getPostDate(WP_Post $post)
+    protected function _getPostDateAsIso(WP_Post $post)
     {
         // Dates in the m/d/y or d-m-y formats are disambiguated by looking at the separator between the various components: if the separator is a slash (/),
         // then the American m/d/y is assumed; whereas if the separator is a dash (-) or a dot (.), then the European d-m-y format is assumed.
         $unixTime = strtotime($post->post_date_gmt);
-        return date('Y-m-d', $unixTime);
+        return date('c', $unixTime);
     }
 
     /**
@@ -116,7 +116,7 @@ class Hugo_Export
             'title'  => html_entity_decode(get_the_title($post)),
             'author' => get_userdata($post->post_author)->display_name,
             'layout' => get_post_type($post),
-            'date'   => $this->_getPostDate($post),
+            'date'   => $this->_getPostDateAsIso($post),
         );
         if (false === empty($post->post_excerpt)) {
             $output['excerpt'] = $post->post_excerpt;
