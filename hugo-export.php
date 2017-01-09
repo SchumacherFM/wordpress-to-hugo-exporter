@@ -354,8 +354,9 @@ class Hugo_Export
         //create zip
         $zip = new ZipArchive();
         $err = $zip->open($this->zip, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
-	if ($err !== TRUE)
-		die("Failed to create '$this->zip' err: $err");
+        if ($err !== true) {
+            die("Failed to create '$this->zip' err: $err");
+        }
         $this->_zip($this->dir, $zip);
         $zip->close();
     }
@@ -382,7 +383,7 @@ class Hugo_Export
             }
 
             //make path within zip relative to zip base, not server root
-            $local_path = '/' . str_replace($this->dir, $this->zip_folder, $path);
+            $local_path = str_replace($this->dir, $this->zip_folder, $path);
 
             //add file
             $zip->addFile(realpath($path), $local_path);
@@ -474,7 +475,7 @@ class Hugo_Export
 
         // Make destination directory
         if (!is_dir($dest)) {
-            if (! wp_mkdir_p($dest)){
+            if (!wp_mkdir_p($dest)) {
                 $wp_filesystem->mkdir($dest) or wp_die("Could not created $dest");
             }
         }
