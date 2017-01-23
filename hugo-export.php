@@ -368,7 +368,7 @@ class Hugo_Export
     {
 
         //loop through all files in directory
-        foreach (glob(trailingslashit($dir) . '*') as $path) {
+        foreach ((array)glob(trailingslashit($dir) . '*') as $path) {
 
             // periodically flush the zipfile to avoid OOM errors
             if ((($zip->numFiles + 1) % 250) == 0) {
