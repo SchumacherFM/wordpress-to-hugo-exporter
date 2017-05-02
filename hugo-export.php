@@ -91,7 +91,7 @@ class Hugo_Export
     {
 
         global $wpdb;
-        return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status = 'publish' AND post_type IN ('post', 'page' )");
+        return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status in ('publish', 'draft', 'private') AND post_type IN ('post', 'page' )");
     }
 
     /**
@@ -120,6 +120,17 @@ class Hugo_Export
         );
         if (false === empty($post->post_excerpt)) {
             $output['excerpt'] = $post->post_excerpt;
+        }
+
+        if (in_array($post->post_status, ['draft', 'private'])) {
+            // Mark private posts as drafts as well, so they don't get
+            // inadvertently published.
+            $output['draft'] = true;
+        }
+        if ($post->post_status == 'private') {
+            // hugo doesn't have the concept 'private posts' - this is just to
+            // disambiguate between private posts and drafts.
+            $output['private'] = true;
         }
 
         //turns permalink into 'url' format, since Hugo supports redirection on per-post basis
