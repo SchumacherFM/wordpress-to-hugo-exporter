@@ -29,6 +29,7 @@ class Hugo_Export
     protected $_tempDir = null;
     private $zip_folder = 'hugo-export/'; //folder zip file extracts to
     private $post_folder = 'post/'; //folder to place posts within
+    private $include_comments = false; //export comments as part of the posts they're associated with
 
     public $rename_options = array('site', 'blog'); //strings to strip from option keys on export
 
@@ -211,6 +212,32 @@ class Hugo_Export
     }
 
     /**
+     * Loop through and convert all comments for the specified post
+     */
+    function convert_comments($post)
+    {
+        $args = array(
+            'post_id' => $post->ID,
+            'order' => 'ASC',   // oldest comments first
+            'type' => 'comment' // we don't want pingbacks etc.
+        );
+        $comments = get_comments($args);
+        if (empty($comments)) {
+            return '';
+        }
+
+        $converter = new Markdownify\ConverterExtra;
+        $output = "\n\n## Comments";
+        foreach($comments as $comment) {
+            $content = apply_filters('comment_text', $comment->comment_content);
+            $output .= "\n\n### Comment by " . $comment->comment_author . " on " . get_comment_date("Y-m-d H:i:s O", $comment) . "\n";
+            $output .= $converter->parseString($content);
+        }
+
+        return $output;
+    }
+
+    /**
      * Loop through and convert all posts to MD files with YAML headers
      */
     function convert_posts()
@@ -233,6 +260,9 @@ class Hugo_Export
 
             $output .= "\n---\n";
             $output .= $this->convert_content($post);
+            if ($this->include_comments) {
+                $output .= $this->convert_comments($post);
+            }
             $this->write($output, $post);
         }
     }
