@@ -29,6 +29,13 @@ class Hugo_Export
     protected $_tempDir = null;
     private $zip_folder = 'hugo-export/'; //folder zip file extracts to
     private $post_folder = 'post/'; //folder to place posts within
+
+    /**
+     * Manually edit this private property and set it to TRUE if you want to export
+     * the comments as part of you posts. Pingbacks won't get exported.
+     *
+     * @var bool
+     */
     private $include_comments = false; //export comments as part of the posts they're associated with
 
     public $rename_options = array('site', 'blog'); //strings to strip from option keys on export
