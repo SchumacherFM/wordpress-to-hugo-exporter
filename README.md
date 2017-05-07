@@ -1,6 +1,6 @@
 # WordPress to Hugo Exporter
 
-Hugo a static site generator written in GoLang: [http://hugo.spf13.com/](http://hugo.spf13.com/)
+Hugo a static site generator written in GoLang: [https://gohugo.io](https://gohugo.io)
 
 This repo is based on [https://github.com/benbalter/wordpress-to-jekyll-exporter](https://github.com/benbalter/wordpress-to-jekyll-exporter)
 
