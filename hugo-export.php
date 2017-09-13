@@ -28,7 +28,7 @@ class Hugo_Export
 {
     protected $_tempDir = null;
     private $zip_folder = 'hugo-export/'; //folder zip file extracts to
-    private $post_folder = 'post/'; //folder to place posts within
+    private $post_folder = 'posts/'; //folder to place posts within
 
     /**
      * Manually edit this private property and set it to TRUE if you want to export
@@ -130,7 +130,7 @@ class Hugo_Export
             $output['excerpt'] = $post->post_excerpt;
         }
 
-        if (in_array($post->post_status, ['draft', 'private'])) {
+        if (in_array($post->post_status, array('draft', 'private'))) {
             // Mark private posts as drafts as well, so they don't get
             // inadvertently published.
             $output['draft'] = true;
