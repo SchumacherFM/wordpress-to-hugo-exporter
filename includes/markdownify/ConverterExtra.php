@@ -85,7 +85,7 @@ class ConverterExtra extends Converter
         );
         // build RegEx lookahead to decide wether table can pe parsed or not
         $inlineTags = array_keys($this->parser->blockElements, false);
-        $colContents = '(?:[^<]|<(?:' . implode('|', $inlineTags) . '|[^a-z]))+';
+        $colContents = '(?:[^<]|<(?:' . implode('|', $inlineTags) . '|[^a-z]))*';
         $this->tableLookaheadHeader = '{
     ^\s*(?:<thead\s*>)?\s*                                  # open optional thead
       <tr\s*>\s*(?:                                         # start required row with headers
@@ -269,7 +269,10 @@ class ConverterExtra extends Converter
         } else {
             // finally build the table in Markdown Extra syntax
             $separator = array();
-            // seperator with correct align identifikators
+            if (!isset($this->table['aligns'])) {
+                $this->table['aligns'] = array();
+            }
+            // seperator with correct align identifiers
             foreach ($this->table['aligns'] as $col => $align) {
                 if (!$this->keepHTML && !isset($this->table['col_widths'][$col])) {
                     break;
@@ -367,6 +370,9 @@ class ConverterExtra extends Converter
             $this->buffer();
         } else {
             $buffer = trim($this->unbuffer());
+            if (!isset($this->table['col_widths'][$this->col])) {
+                $this->table['col_widths'][$this->col] = 0;
+            }
             $this->table['col_widths'][$this->col] = max($this->table['col_widths'][$this->col], $this->strlen($buffer));
             $this->table['rows'][$this->row][$this->col] = $buffer;
         }
