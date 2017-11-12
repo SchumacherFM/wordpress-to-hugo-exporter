@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 /*
 Plugin Name: WordPress to Hugo Exporter
@@ -121,7 +123,7 @@ class Hugo_Export
     function convert_meta(WP_Post $post)
     {
         $output = array(
-            'title'  => html_entity_decode(get_the_title($post)),
+            'title'  => html_entity_decode(get_the_title($post), ENT_QUOTES | ENT_XML1, 'UTF-8'),
             'author' => get_userdata($post->post_author)->display_name,
             'type' => get_post_type($post),
             'date'   => $this->_getPostDateAsIso($post),
@@ -146,6 +148,11 @@ class Hugo_Export
             $output['url'] = urldecode(str_replace(home_url(), '', get_permalink($post)));
         }
 
+	// check if the post or page has a Featured Image assigned to it.
+	if ( has_post_thumbnail($post) ) {
+		$output['featured_image'] = str_replace( get_site_url(), "", get_the_post_thumbnail_url($post));
+	}
+
         //convert traditional post_meta values, hide hidden values
         foreach (get_post_custom($post->ID) as $key => $value) {
             if (substr($key, 0, 1) == '_') {
@@ -155,7 +162,6 @@ class Hugo_Export
                 $output[$key] = $value;
             }
         }
-
         return $output;
     }
 
