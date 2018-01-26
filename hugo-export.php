@@ -220,7 +220,6 @@ class Hugo_Export
      */
     function convert_content($post)
     {
-
         $content   = apply_filters('the_content', $post->post_content);
         $converter = new Markdownify\ConverterExtra;
         $markdown  = $converter->parseString($content);
