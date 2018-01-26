@@ -47,9 +47,9 @@ class Hugo_Export
     );
 
     public $required_classes = array(
-        'spyc'                       => '%pwd%/includes/spyc.php',
-        'Markdownify\Parser'         => '%pwd%/includes/markdownify/Parser.php',
-        'Markdownify\Converter'      => '%pwd%/includes/markdownify/Converter.php',
+        'spyc' => '%pwd%/includes/spyc.php',
+        'Markdownify\Parser' => '%pwd%/includes/markdownify/Parser.php',
+        'Markdownify\Converter' => '%pwd%/includes/markdownify/Converter.php',
         'Markdownify\ConverterExtra' => '%pwd%/includes/markdownify/ConverterExtra.php',
     );
 
@@ -121,10 +121,10 @@ class Hugo_Export
     function convert_meta(WP_Post $post)
     {
         $output = array(
-            'title'  => html_entity_decode(get_the_title($post), ENT_QUOTES | ENT_XML1, 'UTF-8'),
+            'title' => html_entity_decode(get_the_title($post), ENT_QUOTES | ENT_XML1, 'UTF-8'),
             'author' => get_userdata($post->post_author)->display_name,
             'type' => get_post_type($post),
-            'date'   => $this->_getPostDateAsIso($post),
+            'date' => $this->_getPostDateAsIso($post),
         );
         if (false === empty($post->post_excerpt)) {
             $output['excerpt'] = $post->post_excerpt;
@@ -146,10 +146,10 @@ class Hugo_Export
             $output['url'] = urldecode(str_replace(home_url(), '', get_permalink($post)));
         }
 
-	// check if the post or page has a Featured Image assigned to it.
-	if ( has_post_thumbnail($post) ) {
-		$output['featured_image'] = str_replace( get_site_url(), "", get_the_post_thumbnail_url($post));
-	}
+        // check if the post or page has a Featured Image assigned to it.
+        if (has_post_thumbnail($post)) {
+            $output['featured_image'] = str_replace(get_site_url(), "", get_the_post_thumbnail_url($post));
+        }
 
         //convert traditional post_meta values, hide hidden values
         foreach (get_post_custom($post->ID) as $key => $value) {
@@ -220,9 +220,9 @@ class Hugo_Export
      */
     function convert_content($post)
     {
-        $content   = apply_filters('the_content', $post->post_content);
+        $content = apply_filters('the_content', $post->post_content);
         $converter = new Markdownify\ConverterExtra;
-        $markdown  = $converter->parseString($content);
+        $markdown = $converter->parseString($content);
 
         if (false !== strpos($markdown, '[]: ')) {
             // faulty links; return plain HTML
@@ -249,7 +249,7 @@ class Hugo_Export
 
         $converter = new Markdownify\ConverterExtra;
         $output = "\n\n## Comments";
-        foreach($comments as $comment) {
+        foreach ($comments as $comment) {
             $content = apply_filters('comment_text', $comment->comment_content);
             $output .= "\n\n### Comment by " . $comment->comment_author . " on " . get_comment_date("Y-m-d H:i:s O", $comment) . "\n";
             $output .= $converter->parseString($content);
@@ -480,14 +480,14 @@ class Hugo_Export
     function rename_key(&$array, $from, $to)
     {
 
-        $keys  = array_keys($array);
+        $keys = array_keys($array);
         $index = array_search($from, $keys);
 
         if ($index === false)
             return;
 
         $keys[$index] = $to;
-        $array        = array_combine($keys, $array);
+        $array = array_combine($keys, $array);
     }
 
     function convert_uploads()
@@ -505,7 +505,7 @@ class Hugo_Export
      * @link        http://aidanlister.com/2004/04/recursively-copying-directories-in-php/
      *
      * @param       string $source Source path
-     * @param       string $dest   Destination path
+     * @param       string $dest Destination path
      *
      * @return      bool     Returns TRUE on success, FALSE on failure
      */
