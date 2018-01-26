@@ -68,12 +68,12 @@ class ConverterExtra extends Converter
         // link class
         $this->isMarkdownable['a']['id'] = 'optional';
         $this->isMarkdownable['a']['class'] = 'optional';
-		// iframe optionals
-		$this->isMarkdownable['iframe']['width'] = 'optional';
+        // iframe optionals
+        $this->isMarkdownable['iframe']['width'] = 'optional';
         $this->isMarkdownable['iframe']['height'] = 'optional';
-		$this->isMarkdownable['iframe']['allow'] = 'optional';
-		$this->isMarkdownable['iframe']['allowfullscreen'] = 'optional';
-		$this->isMarkdownable['iframe']['frameborder'] = 'optional';
+        $this->isMarkdownable['iframe']['allow'] = 'optional';
+        $this->isMarkdownable['iframe']['allowfullscreen'] = 'optional';
+        $this->isMarkdownable['iframe']['frameborder'] = 'optional';
         // footnotes
         $this->isMarkdownable['fnref'] = array(
             'target' => 'required',
