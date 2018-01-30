@@ -314,7 +314,7 @@ class Converter
      * @return void
      */
     protected function parse()
-    {
+    { 
         $this->output = '';
         // drop tags
         $this->parser->html = preg_replace('#<(' . implode('|', $this->drop) . ')[^>]*>.*</\\1>#sU', '', $this->parser->html);
@@ -373,6 +373,7 @@ class Converter
                             }
                         }
                         $func = 'handleTag_' . $this->parser->tagName;
+
                         $this->$func();
                         if ($this->linkPosition == self::LINK_AFTER_PARAGRAPH && $this->parser->isBlockElement && !$this->parser->isStartTag && empty($this->parser->openTags)) {
                             $this->flushFootnotes();
@@ -846,13 +847,36 @@ class Converter
     }
 	
 	/**
-     * handle <iframe> tags parsing
+     * handle <iframe> tags parsing them if possible as video template for hugo
      *
      * @param void
      * @return void
      */
     protected function handleTag_iframe_parser()
     {
+
+        $iframeLink = $this->decode(trim($this->parser->tagAttributes['src']));
+        $sourceType = null;
+        
+        if (strpos($iframeLink, 'youtube') !== false) {
+        	$sourceType = "youtube";
+        }
+        
+        if (strpos($iframeLink, 'vimeo') !== false) {
+        	$sourceType = "vimeo";
+        }
+
+        $replaceArray = array("https://www.youtube.com/embed/","http://www.youtube.com/embed/","?feature=oembed");
+        $transformedLink = str_replace($replaceArray,"", $iframeLink);
+		
+		if (strpos($transformedLink, 'vimeo.com') !== false) {
+			$transformedLink = trim(substr($transformedLink, strrpos($transformedLink, '/') + 1));
+		}
+        
+        if (strpos($transformedLink, 'http') === false) {
+        	$transformedLink = "{{< $sourceType $transformedLink >}}";
+        }
+		
         $this->parser->tagAttributes['src'] = $this->decode(trim($this->parser->tagAttributes['src']));
     }
 
@@ -866,7 +890,30 @@ class Converter
      */
     protected function handleTag_iframe_converter($tag, $buffer)
     { 
-        return '[' . $tag['src'] . ']';
+		$sourceType = null;
+        
+		$link = $tag['src'];
+		
+        if (strpos($link, 'youtube') !== false) {
+        	$sourceType = "youtube";
+        }
+        
+        if (strpos($link, 'vimeo') !== false) {
+        	$sourceType = "vimeo";
+        }
+
+        $replaceArray = array("https://www.youtube.com/embed/","http://www.youtube.com/embed/","?feature=oembed");
+        $transformedLink = str_replace($replaceArray,"", $link);
+		
+		if (strpos($transformedLink, 'vimeo.com') !== false) {
+			$transformedLink = trim(substr($transformedLink, strrpos($transformedLink, '/') + 1));
+		}
+
+        if (strpos($transformedLink, 'http') === false) {
+        	return $transformedLink = "{{< $sourceType $transformedLink >}}";
+        } else {
+			return "[$transformedLink]";
+		}
     }
 
     /**
