@@ -195,6 +195,36 @@ class ConverterExtra extends Converter
     }
 
     /**
+     * handle <iframe> tags parsing
+     *
+     * @param void
+     * @return void
+     */
+    protected function handleTag_iframe_parser()
+    {
+        parent::handleTag_iframe_parser();
+        $this->parser->tagAttributes['cssSelector'] = $this->getCurrentCssSelector();
+    }
+
+    /**
+     * handle <iframe> tags conversion
+     *
+     * @param array $tag
+     * @param string $buffer
+     * @return string The markdownified link
+     */
+    protected function handleTag_iframe_converter($tag, $buffer)
+    {
+        $output = parent::handleTag_iframe_converter($tag, $buffer);
+        if (!empty($tag['cssSelector'])) {
+            // [This link][id]{#id.class}
+            $output .= '{' . $tag['cssSelector'] . '}';
+        }
+
+        return $output;
+    }
+
+    /**
      * handle <abbr> tags
      *
      * @param void
