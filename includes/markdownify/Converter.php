@@ -917,50 +917,6 @@ class Converter
     }
 
     /**
-     * handle <iframe> tags
-     *
-     * @param void
-     * @return void
-     */
-    protected function handleTag_iframe()
-    {
-        if ($this->parser->isStartTag) {
-            $this->buffer();
-            $this->handleTag_iframe_parser();
-            $this->stack();
-        } else {
-            $tag = $this->unstack();
-            $buffer = $this->unbuffer();
-            $this->handleTag_iframe_converter($tag, $buffer);
-            $this->out($this->handleTag_iframe_converter($tag, $buffer), true);
-        }
-    }
-
-    /**
-     * handle <iframe> tags parsing
-     *
-     * @param void
-     * @return void
-     */
-    protected function handleTag_iframe_parser()
-    {
-        $this->parser->tagAttributes['src'] = $this->decode(trim($this->parser->tagAttributes['src']));
-    }
-
-    /**
-     * handle <iframe> tags conversion
-     * The Hugo Generator should handle video links, by transforming them into iframes again
-     *
-     * @param array $tag
-     * @param string $buffer
-     * @return string The markdownified link from the iframe
-     */
-    protected function handleTag_iframe_converter($tag, $buffer)
-    {
-        return '[' . $tag['src'] . ']';
-    }
-
-    /**
      * handle <img /> tags
      *
      * @param void
