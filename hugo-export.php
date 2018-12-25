@@ -28,15 +28,21 @@ class Hugo_Export
 {
     protected $_tempDir = null;
     private $zip_folder = 'hugo-export/'; //folder zip file extracts to
-    private $post_folder = 'posts/'; //folder to place posts within
+    private $post_folder = 'content/'; //folder to place posts within
 
     /**
-     * Manually edit this private property and set it to TRUE if you want to export
-     * the comments as part of you posts. Pingbacks won't get exported.
+     * Export comments as part of your posts. Pingbacks won't get exported.
      *
      * @var bool
      */
-    private $include_comments = false; //export comments as part of the posts they're associated with
+    private $include_comments = true;
+
+    /**
+     * Convert HTML to Markdown where possible.
+     *
+     * @var bool
+     */
+    private $markdownize = false;
 
     public $rename_options = array('site', 'blog'); //strings to strip from option keys on export
 
@@ -221,6 +227,10 @@ class Hugo_Export
     function convert_content($post)
     {
         $content = apply_filters('the_content', $post->post_content);
+        if (!$markdownize) {
+            return $content;
+        }
+
         $converter = new Markdownify\ConverterExtra;
         $markdown = $converter->parseString($content);
 
@@ -251,8 +261,12 @@ class Hugo_Export
         $output = "\n\n## Comments";
         foreach ($comments as $comment) {
             $content = apply_filters('comment_text', $comment->comment_content);
-            $output .= "\n\n### Comment by " . $comment->comment_author . " on " . get_comment_date("Y-m-d H:i:s O", $comment) . "\n";
-            $output .= $converter->parseString($content);
+            $output .= "\n\n### Comment by " . get_comment_author_link($comment->comment_ID) . " on " . get_comment_date("Y-m-d H:i:s O", $comment) . "\n";
+            if ($markdownize) {
+                $output .= $converter->parseString($content);
+            } else {
+                $output .= $content;
+            }
         }
 
         return $output;
