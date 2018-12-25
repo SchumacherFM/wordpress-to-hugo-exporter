@@ -37,13 +37,6 @@ class Hugo_Export
      */
     private $include_comments = true;
 
-    /**
-     * Convert HTML to Markdown where possible.
-     *
-     * @var bool
-     */
-    private $markdownize = false;
-
     public $rename_options = array('site', 'blog'); //strings to strip from option keys on export
 
     public $options = array( //array of wp_options value to convert to config.yaml
@@ -53,10 +46,7 @@ class Hugo_Export
     );
 
     public $required_classes = array(
-        'spyc' => '%pwd%/includes/spyc.php',
-        'Markdownify\Parser' => '%pwd%/includes/markdownify/Parser.php',
-        'Markdownify\Converter' => '%pwd%/includes/markdownify/Converter.php',
-        'Markdownify\ConverterExtra' => '%pwd%/includes/markdownify/ConverterExtra.php',
+        'spyc' => '%pwd%/includes/spyc.php'
     );
 
     /**
@@ -222,24 +212,11 @@ class Hugo_Export
     }
 
     /**
-     * Convert the main post content to Markdown.
+     * Convert the main post content.
      */
     function convert_content($post)
     {
-        $content = apply_filters('the_content', $post->post_content);
-        if (!$markdownize) {
-            return $content;
-        }
-
-        $converter = new Markdownify\ConverterExtra;
-        $markdown = $converter->parseString($content);
-
-        if (false !== strpos($markdown, '[]: ')) {
-            // faulty links; return plain HTML
-            return $content;
-        }
-
-        return $markdown;
+        return apply_filters('the_content', $post->post_content);
     }
 
     /**
@@ -249,25 +226,30 @@ class Hugo_Export
     {
         $args = array(
             'post_id' => $post->ID,
-            'order' => 'ASC',   // oldest comments first
-            'type' => 'comment' // we don't want pingbacks etc.
+            'order' => 'ASC'   // oldest comments first
         );
         $comments = get_comments($args);
         if (empty($comments)) {
             return '';
         }
 
-        $converter = new Markdownify\ConverterExtra;
-        $output = "\n\n## Comments";
+        $output = "\n\n<h2>Replies</h2>\n\n";
+        $output .= "<div id=\"comments\">\n";
         foreach ($comments as $comment) {
-            $content = apply_filters('comment_text', $comment->comment_content);
-            $output .= "\n\n### Comment by " . get_comment_author_link($comment->comment_ID) . " on " . get_comment_date("Y-m-d H:i:s O", $comment) . "\n";
-            if ($markdownize) {
-                $output .= $converter->parseString($content);
-            } else {
-                $output .= $content;
-            }
+            $cid = $comment->comment_ID;
+            $ctype = get_comment_type($cid);
+            $output .= "  <div class=\"comment\" data-wp-comment-type=\"" . $ctype . "\" id=\"comment-" . $cid . "\">\n";
+            $output .= "    <span class=\"comment-metadata\">\n";
+            $output .= "      <a href=\"#comment-" . $cid . "\" title=\"Permanent link to this comment\" rel=\"bookmark\">#" . $cid . "</a>\n";
+            $output .= "      <span class=\"timestamp\" data-ts=\"" . get_comment_date('U', $cid) . "\">" . get_comment_date('Y-m-d \a\t H:i:s T', $cid) . "</span>\n";
+            $output .= "    </span>\n"; // .comment-metadata
+            $output .= "    <p class=\"comment-attribution\">" . get_comment_author_link($cid) . " says:</p>\n";
+            $output .= "    <div class=\"commentdata userformat\">\n";
+            $output .=        apply_filters('comment_text', $comment->comment_content);
+            $output .= "    </div>\n"; // .commentdata
+            $output .= "  </div>\n"; // .comment
         }
+        $output .= "</div>\n"; // #comments
 
         return $output;
     }
