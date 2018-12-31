@@ -185,27 +185,24 @@ class Hugo_Export
      */
     function convert_terms($post)
     {
-
         $output = array();
+        $tags = array(); // combined tags and categories (as 'tags')
+
         foreach (get_taxonomies(array('object_type' => array(get_post_type($post)))) as $tax) {
 
             $terms = wp_get_post_terms($post, $tax);
 
-            //convert tax name for Hugo
-            switch ($tax) {
-                case 'post_tag':
-                    $tax = 'tags';
-                    break;
-                case 'category':
-                    $tax = 'categories';
-                    break;
-            }
-
-            if ($tax == 'post_format') {
+            if ($tax === 'category' || $tax == 'post_tag') {
+                $tags = $tags + wp_list_pluck($terms, 'name');
+            } else if ($tax == 'post_format') {
                 $output['format'] = get_post_format($post);
             } else {
                 $output[$tax] = wp_list_pluck($terms, 'name');
             }
+        }
+
+        if (!empty($tags)) {
+            $output['tags'] = $tags;
         }
 
         return $output;
