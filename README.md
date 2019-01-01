@@ -45,7 +45,7 @@ containing `.md` files for each post in the proper Hugo naming convention.
 MariaDB and Nginx or Apache or Caddy Server. Alternatively you can install a
 Docker Compose setup
 [https://github.com/wodby/docker4wordpress](https://github.com/wodby/docker4wordpress)
-4. Install this plugin by downloading a zip file of this repo.
+4. Install this plugin by downloading a zip file of this repo and uploading to WP.
 5. Import the XML export. You should take care that the WordPress version of the
 export matches the WP version used for the import.
 6. In the WP backend run the `Export to Hugo` command. If that fails go to the
