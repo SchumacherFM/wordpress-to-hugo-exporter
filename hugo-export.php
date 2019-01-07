@@ -201,6 +201,10 @@ class Hugo_Export
             }
         }
 
+        $tags = array_values(array_filter($tags, function($v) {
+            return $v !== '-no category-';
+        }));
+
         if (!empty($tags)) {
             $output['tags'] = $tags;
         }
