@@ -98,17 +98,24 @@ class Hugo_Export
         return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status in ('publish', 'draft', 'private') AND post_type IN ('post', 'page' )");
     }
 
-    /**
-     * @param WP_Post $post
-     *
-     * @return bool|string
-     */
-    protected function _getPostDateAsIso(WP_Post $post)
-    {
-        // Dates in the m/d/y or d-m-y formats are disambiguated by looking at the separator between the various components: if the separator is a slash (/),
-        // then the American m/d/y is assumed; whereas if the separator is a dash (-) or a dot (.), then the European d-m-y format is assumed.
-        $unixTime = strtotime($post->post_date_gmt);
-        return date('c', $unixTime);
+    protected function post_unix_time(WP_Post $post) {
+        $use_date = $post->post_date_gmt;
+
+        // Sometimes $post->post_date_gmt is 0000-00-00 00:00:00
+        // for no apparent reason
+        if ($use_date === '0000-00-00 00:00:00') {
+            // When that's the case, sometimes post_date has a valid date, so at
+            // least fall back to that, even if it's off by a few hours.
+            $use_date = $post->post_date;
+        }
+
+        // Sometimes that one's invalid too!
+        if ($use_date === '0000-00-00 00:00:00') {
+            // So if that fails, pick a valid but incorrect date.
+            // This one is before I started the blog.
+            $use_date = '2005-01-01 00:00:00';
+        }
+        return strtotime($use_date);
     }
 
     /**
@@ -120,7 +127,7 @@ class Hugo_Export
             'title' => html_entity_decode(get_the_title($post), ENT_QUOTES | ENT_XML1, 'UTF-8'),
             'author' => get_userdata($post->post_author)->display_name,
             'type' => get_post_type($post),
-            'date' => $this->_getPostDateAsIso($post),
+            'date' => date('c', $this->post_unix_time($post)),
         );
         if (false === empty($post->post_excerpt)) {
             $output['excerpt'] = $post->post_excerpt;
@@ -387,7 +394,7 @@ class Hugo_Export
             $wp_filesystem->mkdir(urldecode($this->dir . $post->post_name));
             $filename = urldecode($post->post_name . '/index.md');
         } else {
-            $filename = $this->post_folder . date('Y-m-d', strtotime($post->post_date)) . '-' . urldecode($post->post_name) . '.md';
+            $filename = $this->post_folder . date('Y-m-d', $this->post_unix_time($post)) . '-' . urldecode($post->post_name) . '.md';
         }
 
         $wp_filesystem->put_contents($this->dir . $filename, $output);

@@ -15,6 +15,8 @@ https://github.com/SchumacherFM/wordpress-to-hugo-exporter v1.6:
 - Include comment author's URL, if provided (still includes extraneous
   class=url attribute from Wordpress but whatever)
 - Include pingbacks/trackbacks
+- Handle all-zeroes dates, including where GMT date is invalid but
+  non-GMT date is usable
 
 ## License
 
