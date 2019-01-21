@@ -18,6 +18,13 @@ https://github.com/SchumacherFM/wordpress-to-hugo-exporter v1.6:
 - Handle all-zeroes dates, including where GMT date is invalid but
   non-GMT date is usable
 
+Broken:
+
+- As with the original repo, you'll need to make some changes to the
+  generated config.yaml file:
+    - Change `url` to `baseUrl`
+    - Change `name` to `title`
+
 ## License
 
 The project is licensed under the GPLv3 or later
