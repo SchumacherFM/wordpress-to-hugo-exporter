@@ -11,7 +11,9 @@
  */
 
 include "../../../wp-load.php";
-include "../../../wp-admin/includes/file.php";
+if (! function_exists('get_file_description')) {
+    include "../../../wp-admin/includes/file.php";
+}
 require_once "hugo-export.php";
 
 $je = new Hugo_Export();
