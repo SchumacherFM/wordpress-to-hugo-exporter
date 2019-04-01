@@ -10,10 +10,8 @@
  *
  */
 
-include "../../../wp-load.php";
-if (! function_exists('get_file_description')) {
-    include "../../../wp-admin/includes/file.php";
-}
+include_once "../../../wp-load.php";
+include_once "../../../wp-admin/includes/file.php";
 require_once "hugo-export.php";
 
 $je = new Hugo_Export();
