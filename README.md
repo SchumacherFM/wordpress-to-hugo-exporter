@@ -67,6 +67,11 @@ It works just like the plugin, but produces the zipfile at `/tmp/wp-hugo.zip`:
 
     php hugo-export-cli.php
 
+
+If you want to offer a folder (say a mount point to a huge drive) other than using `/tmp` in OS, pass it as the first argument to the script:
+
+    php hugo-export-cli.php /YOUR_PATH_TO_TMP_FOLDER/
+
 Alternatively, if you have [WP-CLI](http://wp-cli.org) installed, you can run:
 
 ```
