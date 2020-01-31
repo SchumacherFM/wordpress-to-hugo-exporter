@@ -37,6 +37,8 @@ containing `.md` files for each post in the proper Hugo naming convention.
 
 ## Usage at wordpress.com or any other hoster without SSH access
 
+### If you cannot install plugins in your wordpress.com instance
+
 (I've never tried it, because not a wp.com user)
 
 1. Login into the backend.
@@ -56,6 +58,17 @@ usage.
 
 Re Docker: It should be very easy to create a Dockerfile containing everything
 above mentioned for a one time conversion of the XML file to the Hugo format.
+
+### If you can install plugins in your wordpress.com instance
+
+1. Download this repo as a zip file.
+2. Login into the backend.
+3. In the plugin section, go to `Add New`.
+4. Upload the zip of this repo.
+5. Activate the plugin.
+6. In the WP backend run the `Export to Hugo` command.
+7. Collect the ZIP via download.
+8. Copy contents of the zip to your Hugo install and enjoy Hugo.
 
 ## Command-line Usage
 
