@@ -1,7 +1,5 @@
 <?php
 
-/* This file is part of the Markdownify project, which is under LGPL license */
-
 namespace Markdownify;
 
 class ConverterExtra extends Converter
@@ -12,7 +10,7 @@ class ConverterExtra extends Converter
      *
      * @var array
      */
-    protected $table = array();
+    protected $table = [];
 
     /**
      * current col
@@ -27,16 +25,6 @@ class ConverterExtra extends Converter
      * @var int
      */
     protected $row = 0;
-
-    /**
-     * @var string
-     */
-    protected $tableLookaheadBody;
-
-    /**
-     * @var string
-     */
-    protected $tableLookaheadHeader;
 
     /**
      * constructor, see Markdownify::Markdownify() for more information
@@ -60,45 +48,39 @@ class ConverterExtra extends Converter
         $this->isMarkdownable['h6']['id'] = 'optional';
         $this->isMarkdownable['h6']['class'] = 'optional';
         // tables
-        $this->isMarkdownable['table'] = array();
-        $this->isMarkdownable['th'] = array(
+        $this->isMarkdownable['table'] = [];
+        $this->isMarkdownable['th'] = [
             'align' => 'optional',
-        );
-        $this->isMarkdownable['td'] = array(
+        ];
+        $this->isMarkdownable['td'] = [
             'align' => 'optional',
-        );
-        $this->isMarkdownable['tr'] = array();
+        ];
+        $this->isMarkdownable['tr'] = [];
         array_push($this->ignore, 'thead');
         array_push($this->ignore, 'tbody');
         array_push($this->ignore, 'tfoot');
         // definition lists
-        $this->isMarkdownable['dl'] = array();
-        $this->isMarkdownable['dd'] = array();
-        $this->isMarkdownable['dt'] = array();
+        $this->isMarkdownable['dl'] = [];
+        $this->isMarkdownable['dd'] = [];
+        $this->isMarkdownable['dt'] = [];
         // link class
         $this->isMarkdownable['a']['id'] = 'optional';
         $this->isMarkdownable['a']['class'] = 'optional';
-        // iframe optionals
-        $this->isMarkdownable['iframe']['width'] = 'optional';
-        $this->isMarkdownable['iframe']['height'] = 'optional';
-        $this->isMarkdownable['iframe']['allow'] = 'optional';
-        $this->isMarkdownable['iframe']['allowfullscreen'] = 'optional';
-        $this->isMarkdownable['iframe']['frameborder'] = 'optional';
         // footnotes
-        $this->isMarkdownable['fnref'] = array(
+        $this->isMarkdownable['fnref'] = [
             'target' => 'required',
-        );
-        $this->isMarkdownable['footnotes'] = array();
-        $this->isMarkdownable['fn'] = array(
+        ];
+        $this->isMarkdownable['footnotes'] = [];
+        $this->isMarkdownable['fn'] = [
             'name' => 'required',
-        );
+        ];
         $this->parser->blockElements['fnref'] = false;
         $this->parser->blockElements['fn'] = true;
         $this->parser->blockElements['footnotes'] = true;
         // abbr
-        $this->isMarkdownable['abbr'] = array(
+        $this->isMarkdownable['abbr'] = [
             'title' => 'required',
-        );
+        ];
         // build RegEx lookahead to decide wether table can pe parsed or not
         $inlineTags = array_keys($this->parser->blockElements, false);
         $colContents = '(?:[^<]|<(?:' . implode('|', $inlineTags) . '|[^a-z]))*';
@@ -173,36 +155,6 @@ class ConverterExtra extends Converter
 
         return $output;
     }
-	
-	/**
-     * handle <iframe> tags parsing
-     *
-     * @param void
-     * @return void
-     */
-    protected function handleTag_iframe_parser()
-    {
-        parent::handleTag_iframe_parser();
-        $this->parser->tagAttributes['cssSelector'] = $this->getCurrentCssSelector();
-    }
-
-    /**
-     * handle <iframe> tags conversion
-     *
-     * @param array $tag
-     * @param string $buffer
-     * @return string The markdownified link
-     */
-    protected function handleTag_iframe_converter($tag, $buffer)
-    {
-        $output = parent::handleTag_iframe_converter($tag, $buffer);
-        if (!empty($tag['cssSelector'])) {
-            // [This link][id]{#id.class}
-            $output .= '{' . $tag['cssSelector'] . '}';
-        }
-
-        return $output;
-    }
 
     /**
      * handle <abbr> tags
@@ -241,7 +193,7 @@ class ConverterExtra extends Converter
      */
     protected function flushStacked_abbr()
     {
-        $out = array();
+        $out = [];
         foreach ($this->stack['abbr'] as $k => $tag) {
             if (!isset($tag['unstacked'])) {
                 array_push($out, ' *[' . $tag['text'] . ']: ' . $tag['title']);
@@ -271,7 +223,7 @@ class ConverterExtra extends Converter
                     preg_match_all('#<th(?:\s+align=("|\')(left|right|center)\1)?\s*>#si', $matches[0], $cols);
                     $regEx = '';
                     $i = 1;
-                    $aligns = array();
+                    $aligns = [];
                     foreach ($cols[2] as $align) {
                         $align = strtolower($align);
                         array_push($aligns, $align);
@@ -290,11 +242,11 @@ class ConverterExtra extends Converter
                     $regEx = sprintf($this->tableLookaheadBody, $regEx);
                     if (preg_match($regEx, $this->parser->html, $matches, null, strlen($matches[0]))) {
                         // this is a markdownable table tag!
-                        $this->table = array(
-                            'rows' => array(),
-                            'col_widths' => array(),
+                        $this->table = [
+                            'rows' => [],
+                            'col_widths' => [],
                             'aligns' => $aligns,
-                        );
+                        ];
                         $this->row = 0;
                     } else {
                         // non markdownable table
@@ -305,18 +257,18 @@ class ConverterExtra extends Converter
                     $this->handleTagToText();
                 }
             } else {
-                $this->table = array(
-                    'rows' => array(),
-                    'col_widths' => array(),
-                    'aligns' => array(),
-                );
+                $this->table = [
+                    'rows' => [],
+                    'col_widths' => [],
+                    'aligns' => [],
+                ];
                 $this->row = 0;
             }
         } else {
             // finally build the table in Markdown Extra syntax
-            $separator = array();
+            $separator = [];
             if (!isset($this->table['aligns'])) {
-                $this->table['aligns'] = array();
+                $this->table['aligns'] = [];
             }
             // seperator with correct align identifiers
             foreach ($this->table['aligns'] as $col => $align) {
@@ -340,9 +292,9 @@ class ConverterExtra extends Converter
             }
             $separator = '|' . implode('|', $separator) . '|';
 
-            $rows = array();
+            $rows = [];
             // add padding
-            array_walk_recursive($this->table['rows'], array(&$this, 'alignTdContent'));
+            array_walk_recursive($this->table['rows'], [&$this, 'alignTdContent']);
             $header = array_shift($this->table['rows']);
             array_push($rows, '| ' . implode(' | ', $header) . ' |');
             array_push($rows, $separator);
@@ -350,7 +302,7 @@ class ConverterExtra extends Converter
                 array_push($rows, '| ' . implode(' | ', $row) . ' |');
             }
             $this->out(implode("\n" . $this->indent, $rows));
-            $this->table = array();
+            $this->table = [];
             $this->setLineBreaks(2);
         }
     }
@@ -565,7 +517,7 @@ class ConverterExtra extends Converter
         //   <fn name="...">...</fn>
         //   ...
         // </footnotes>
-        $html = preg_replace_callback('#<div class="footnotes">\s*<hr />\s*<ol>\s*(.+)\s*</ol>\s*</div>#Us', array(&$this, '_makeFootnotes'), $html);
+        $html = preg_replace_callback('#<div class="footnotes">\s*<hr />\s*<ol>\s*(.+)\s*</ol>\s*</div>#Us', [&$this, '_makeFootnotes'], $html);
 
         return parent::parseString($html);
     }
@@ -599,6 +551,9 @@ class ConverterExtra extends Converter
 
     /**
      * handle <a> tags parsing
+     *
+     * @param void
+     * @return void
      */
     protected function getCurrentCssSelector()
     {
@@ -611,7 +566,6 @@ class ConverterExtra extends Converter
             $classes = array_filter($classes);
             $cssSelector .= '.' . join('.', $classes);
         }
-
         return $cssSelector;
     }
 }

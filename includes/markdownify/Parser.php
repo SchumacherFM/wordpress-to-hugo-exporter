@@ -1,7 +1,5 @@
 <?php
 
-/* This file is part of the Markdownify project, which is under LGPL license */
-
 namespace Markdownify;
 
 class Parser
@@ -16,7 +14,7 @@ class Parser
      *
      * @var array<string>
      */
-    public $emptyTags = array(
+    public $emptyTags = [
         'br',
         'hr',
         'input',
@@ -25,7 +23,7 @@ class Parser
         'link',
         'meta',
         'param',
-    );
+    ];
 
     /**
      * tags with preformatted text
@@ -33,12 +31,12 @@ class Parser
      *
      * @var array<string>
      */
-    public $preformattedTags = array(
+    public $preformattedTags = [
         'script',
         'style',
         'pre',
         'code',
-    );
+    ];
 
     /**
      * supress HTML tags inside preformatted tags (see above)
@@ -140,7 +138,7 @@ class Parser
      *
      * @var array
      */
-    public $openTags = array();
+    public $openTags = [];
 
     /**
      * list of block elements
@@ -148,10 +146,11 @@ class Parser
      * @var array
      * TODO: what shall we do with <del> and <ins> ?!
      */
-    public $blockElements = array(
+    public $blockElements = [
         // tag name => <bool> is block
         // block elements
         'address' => true,
+        'aside' => true,
         'blockquote' => true,
         'center' => true,
         'del' => true,
@@ -236,8 +235,9 @@ class Parser
         'sup' => false,
         'textarea' => false,
         'tt' => false,
+        'u' => false,
         'var' => false,
-    );
+    ];
 
     /**
      * get next node, set $this->html prior!
@@ -256,7 +256,7 @@ class Parser
         if ($this->isStartTag && !$this->isEmptyTag) {
             array_push($this->openTags, $this->tagName);
             if (in_array($this->tagName, $this->preformattedTags)) {
-                // dont truncate whitespaces for <code> or <pre> contents
+                // don't truncate whitespaces for <code> or <pre> contents
                 $this->keepWhitespace++;
             }
         }
@@ -354,10 +354,10 @@ class Parser
         if (!isset(static::$a_ord)) {
             static::$a_ord = ord('a');
             static::$z_ord = ord('z');
-            static::$special_ords = array(
+            static::$special_ords = [
                 ord(':'), // for xml:lang
                 ord('-'), // for http-equiv
-            );
+            ];
         }
 
         $tagName = '';
@@ -396,7 +396,7 @@ class Parser
         // get tag attributes
         /** TODO: in html 4 attributes do not need to be quoted **/
         $isEmptyTag = false;
-        $attributes = array();
+        $attributes = [];
         $currAttrib = '';
         while (isset($this->html[$pos + 1])) {
             $pos++;
@@ -413,9 +413,9 @@ class Parser
             if (($pos_ord >= static::$a_ord && $pos_ord <= static::$z_ord) || in_array($pos_ord, static::$special_ords)) {
                 // attribute name
                 $currAttrib .= $this->html[$pos];
-            } elseif (in_array($this->html[$pos], array(' ', "\t", "\n"))) {
+            } elseif (in_array($this->html[$pos], [' ', "\t", "\n"])) {
                 // drop whitespace
-            } elseif (in_array($this->html[$pos] . $this->html[$pos + 1], array('="', "='"))) {
+            } elseif (in_array($this->html[$pos] . $this->html[$pos + 1], ['="', "='"])) {
                 // get attribute value
                 $pos++;
                 $await = $this->html[$pos]; // single or double quote
