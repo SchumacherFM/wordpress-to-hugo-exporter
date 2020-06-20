@@ -568,6 +568,8 @@ class Hugo_Export
     }
 }
 
+ini_set('display_errors', 0);
+
 $je = new Hugo_Export();
 
 if (defined('WP_CLI') && WP_CLI) {
