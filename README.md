@@ -96,6 +96,14 @@ environments, such as when `wp-content` isn't in the usual location.
 
 ## Changelog
 
+### 2.0
+
+Updates the markdownify library, removes lots of unused code, AFAIK.
+
+### Many other versions
+
+with tiny fixes
+
 ### 1.6
 
 * Fix destination against hugo 0.27
