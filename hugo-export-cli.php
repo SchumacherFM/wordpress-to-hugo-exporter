@@ -1,13 +1,14 @@
 <?php
 /*
- * Run the exporter from the command line and spit the zipfile to STDOUT.
+ * Run the exporter from the command line and print the location of the zip file.
  *
  * Usage:
  *
- *     $ php hugo-export-cli.php > my-hugo-files.zip
+ *     $ php hugo-export-cli.php
  *
  * Must be run in the wordpress-to-hugo-exporter/ directory.
  *
+ * If you have multiple hostnames, call it like SERVER_NAME=example.com php hugo-export-cli.php
  */
 
 include "../../../wp-load.php";
