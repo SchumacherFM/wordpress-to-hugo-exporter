@@ -37,12 +37,11 @@ class Hugo_Export
      */
     private $include_comments = true;
 
-    public $rename_options = array('site', 'blog'); //strings to strip from option keys on export
-
-    public $options = array( //array of wp_options value to convert to config.yaml
-        'name',
-        'description',
-        'url'
+    // Dictionary of Wordpress options to Hugo config values
+    public $rename_options = array(
+        'siteurl' => 'baseUrl',
+        'blogname' => 'title',
+        'blogdescription' => 'description'
     );
 
     public $required_classes = array(
@@ -348,35 +347,15 @@ class Hugo_Export
      */
     function convert_options()
     {
-
         global $wp_filesystem;
 
-        $options = wp_load_alloptions();
-        foreach ($options as $key => &$option) {
-
-            if (substr($key, 0, 1) == '_')
-                unset($options[$key]);
-
-            //strip site and blog from key names, since it will become site. when in Hugo
-            foreach ($this->rename_options as $rename) {
-
-                $len = strlen($rename);
-                if (substr($key, 0, $len) != $rename)
-                    continue;
-
-                $this->rename_key($options, $key, substr($key, $len));
-            }
-
-            $option = maybe_unserialize($option);
+        $wp_options = wp_load_alloptions();
+        $hugo_config = array();
+        foreach ($this->rename_options as $from_key => $to_key) {
+            $hugo_config[$to_key] = maybe_unserialize($wp_options[$from_key]);
         }
 
-        foreach ($options as $key => $value) {
-
-            if (!in_array($key, $this->options))
-                unset($options[$key]);
-        }
-
-        $output = Spyc::YAMLDump($options);
+        $output = Spyc::YAMLDump($hugo_config);
 
         //strip starting "---"
         $output = substr($output, 4);

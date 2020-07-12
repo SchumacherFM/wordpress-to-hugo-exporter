@@ -20,13 +20,7 @@ https://github.com/SchumacherFM/wordpress-to-hugo-exporter v1.6:
 - Change exporter to send zip file to stdout like CLI wrapper claims
   it will
 - Include instructions in CLI wrapper for multi-host setups
-
-Broken:
-
-- As with the original repo, you'll need to make some changes to the
-  generated config.yaml file:
-    - Change `url` to `baseUrl`
-    - Change `name` to `title`
+- Fix hugo config.yaml creation (correct keys, and simpler process)
 
 ## License
 
