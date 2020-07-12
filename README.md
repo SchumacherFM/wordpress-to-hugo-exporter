@@ -21,6 +21,7 @@ https://github.com/SchumacherFM/wordpress-to-hugo-exporter v1.6:
   it will
 - Include instructions in CLI wrapper for multi-host setups
 - Fix hugo config.yaml creation (correct keys, and simpler process)
+- Put everything in root of zip file, not under another folder
 
 ## License
 

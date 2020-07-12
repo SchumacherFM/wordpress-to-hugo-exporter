@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class Hugo_Export
 {
     protected $_tempDir = null;
-    private $zip_folder = 'hugo-export/'; //folder zip file extracts to
     private $post_folder = 'content/'; //folder to place posts within
 
     /**
@@ -421,7 +420,7 @@ class Hugo_Export
             }
 
             //make path within zip relative to zip base, not server root
-            $local_path = str_replace($this->dir, $this->zip_folder, $path);
+            $local_path = str_replace($this->dir, '', $path);
 
             //add file
             $zip->addFile(realpath($path), $local_path);
