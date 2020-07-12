@@ -247,7 +247,8 @@ class Hugo_Export
             $ctype = get_comment_type($cid);
             $meta = array(
                 'id' => $cid,
-                'publishDate' => get_comment_date('Y-m-d H:i:s T', $cid),
+                'type' => $ctype,
+                'date' => date('c', strtotime($comment->comment_date_gmt)),
                 'authorId' => $comment->user_id,
                 'author' => $comment->comment_author,
                 'authorUrl' => $comment->comment_author_url
