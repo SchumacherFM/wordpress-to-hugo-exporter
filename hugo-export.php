@@ -228,7 +228,8 @@ class Hugo_Export
     }
 
     /**
-     * Loop through and convert all comments for the specified post
+     * Loop through and convert all comments for the specified post,
+     * writing them out as separate files next the posts.
      */
     function convert_comments($post)
     {
@@ -241,25 +242,24 @@ class Hugo_Export
             return '';
         }
 
-        $output = "\n\n<h2>Replies</h2>\n\n";
-        $output .= "<div id=\"comments\">\n";
         foreach ($comments as $comment) {
             $cid = $comment->comment_ID;
             $ctype = get_comment_type($cid);
-            $output .= "  <div class=\"comment\" data-wp-comment-type=\"" . $ctype . "\" id=\"comment-" . $cid . "\">\n";
-            $output .= "    <span class=\"comment-metadata\">\n";
-            $output .= "      <a href=\"#comment-" . $cid . "\" title=\"Permanent link to this comment\" rel=\"bookmark\">#" . $cid . "</a>\n";
-            $output .= "      <span class=\"timestamp\" data-ts=\"" . get_comment_date('U', $cid) . "\">" . get_comment_date('Y-m-d \a\t H:i:s T', $cid) . "</span>\n";
-            $output .= "    </span>\n"; // .comment-metadata
-            $output .= "    <p class=\"comment-attribution\">" . get_comment_author_link($cid) . " says:</p>\n";
-            $output .= "    <div class=\"commentdata userformat\">\n";
-            $output .=        apply_filters('comment_text', $comment->comment_content);
-            $output .= "    </div>\n"; // .commentdata
-            $output .= "  </div>\n"; // .comment
-        }
-        $output .= "</div>\n"; // #comments
+            $meta = array(
+                'id' => $cid,
+                'publishDate' => get_comment_date('Y-m-d H:i:s T', $cid),
+                'authorId' => $comment->user_id,
+                'author' => $comment->comment_author,
+                'authorUrl' => $comment->comment_author_url
+            );
 
-        return $output;
+            $output = Spyc::YAMLDump($meta, false, 0);
+            $output .= "\n---\n";
+            $output .= $comment->comment_content;
+
+            $filename = 'comment_' . $ctype . '_' . $cid . '.md';
+            $this->write($output, $this->output_post_dir($post), $filename);
+        }
     }
 
     /**
@@ -282,13 +282,14 @@ class Hugo_Export
 
             // Hugo doesn't like word-wrapped permalinks
             $output = Spyc::YAMLDump($meta, false, 0);
-
             $output .= "\n---\n";
             $output .= $this->convert_content($post);
+
+            $this->write($output, $this->output_post_dir($post), 'index.md');
+
             if ($this->include_comments) {
-                $output .= $this->convert_comments($post);
+                $this->convert_comments($post);
             }
-            $this->write($output, $post);
         }
     }
 
@@ -383,21 +384,23 @@ class Hugo_Export
     }
 
     /**
-     * Write file to temp dir
+     * Get the path for this post's output folder in the temp directory.
      */
-    function write($output, $post)
+    function output_post_dir($post)
     {
+        $dirname = date('Y-m-d', $this->post_unix_time($post)) . '_' . urldecode($post->post_name);
+        return $this->dir . $this->post_folder . $dirname;
+    }
 
+    /**
+     * Write file to temp dir.
+     */
+    function write($output, $dir, $filename)
+    {
         global $wp_filesystem;
-
-        if (get_post_type($post) == 'page') {
-            $wp_filesystem->mkdir(urldecode($this->dir . $post->post_name));
-            $filename = urldecode($post->post_name . '/index.md');
-        } else {
-            $filename = $this->post_folder . date('Y-m-d', $this->post_unix_time($post)) . '-' . urldecode($post->post_name) . '.md';
-        }
-
-        $wp_filesystem->put_contents($this->dir . $filename, $output);
+        if (!$wp_filesystem->exists($dir))
+            $wp_filesystem->mkdir($dir) or die("Failed to create post output dir: $dir");
+        $wp_filesystem->put_contents($dir . '/' . $filename, $output);
     }
 
     /**
