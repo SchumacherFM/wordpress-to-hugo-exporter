@@ -11,6 +11,11 @@
  * If you have multiple hostnames, call it like SERVER_NAME=example.com php hugo-export-cli.php
  */
 
+// Important security check -- don't allow unauthenticated access over the web!
+if ('cli' !== php_sapi_name()) {
+   die("Script can only be run from CLI");
+}
+
 include "../../../wp-load.php";
 include "../../../wp-admin/includes/file.php";
 require_once "hugo-export.php";
