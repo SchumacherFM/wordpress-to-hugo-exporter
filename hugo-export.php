@@ -454,15 +454,12 @@ class Hugo_Export
      */
     function send()
     {
-        if ('cli' === php_sapi_name()) {
-            echo "\nThis is your file!\n$this->zip\n";
-            return null;
+        if ('cli' !== php_sapi_name()) {
+            //send headers
+            @header('Content-Type: application/zip');
+            @header("Content-Disposition: attachment; filename=hugo-export.zip");
+            @header('Content-Length: ' . filesize($this->zip));
         }
-
-        //send headers
-        @header('Content-Type: application/zip');
-        @header("Content-Disposition: attachment; filename=hugo-export.zip");
-        @header('Content-Length: ' . filesize($this->zip));
 
         //read file
         ob_clean();
@@ -477,9 +474,7 @@ class Hugo_Export
     {
         global $wp_filesystem;
         $wp_filesystem->delete($this->dir, true);
-        if ('cli' !== php_sapi_name()) {
-            $wp_filesystem->delete($this->zip);
-        }
+        $wp_filesystem->delete($this->zip);
     }
 
     /**

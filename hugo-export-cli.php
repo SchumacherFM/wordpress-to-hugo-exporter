@@ -1,6 +1,6 @@
 <?php
 /*
- * Run the exporter from the command line and print the location of the zip file.
+ * Run the exporter from the command line and send the zip file to stdout.
  *
  * Usage:
  *
