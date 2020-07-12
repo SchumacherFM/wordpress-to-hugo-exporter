@@ -8,15 +8,16 @@ https://github.com/SchumacherFM/wordpress-to-hugo-exporter v1.6:
 
 - Put posts in `content/` instead of `posts/` to match Hugo's
   expectations
+- Enable comment export by default
+- Posts are index.md files in individual directories under `content/`,
+  and each comment is a separate Markdown file in that dir
 - Merge categories into tags
 - Exclude default category (by hardcoded name)
 - Remove Markdown conversion (except for metadata framing)
-- Enable comment export by default
-- Include comment author's URL, if provided (still includes extraneous
-  class=url attribute from Wordpress but whatever)
 - Include pingbacks/trackbacks
 - Handle all-zeroes dates, including where GMT date is invalid but
   non-GMT date is usable
+- Fix instructions in CLI wrapper
 
 Broken:
 
