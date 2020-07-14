@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class Hugo_Export
 {
     protected $_tempDir = null;
-    private $post_folder = 'content/'; //folder to place posts within
+    private $posts_dir_name = 'post'; // name of posts dir, inside content dir
 
     /**
      * Export comments as part of your posts. Pingbacks won't get exported.
@@ -329,9 +329,10 @@ class Hugo_Export
 
         $this->dir = $this->getTempDir() . 'wp-hugo-' . md5(time());
         $this->zip = $this->getTempDir() . 'wp-hugo.zip';
-        $wp_filesystem->mkdir($this->dir);
-        $wp_filesystem->mkdir($this->dir . '/' . $this->post_folder);
-        $wp_filesystem->mkdir($this->dir . '/wp-content');
+        $wp_filesystem->mkdir($this->dir) or die("Failed to create export dir");
+        $wp_filesystem->mkdir("$this->dir/content") or die("Failed to create content dir");
+        $wp_filesystem->mkdir("$this->dir/content/$this->posts_dir_name") or die("Failed to create posts folder");
+        $wp_filesystem->mkdir("$this->dir/wp-content");
 
         $this->convert_options();
         $this->convert_posts();
@@ -368,7 +369,7 @@ class Hugo_Export
     function output_post_dir($post)
     {
         $dirname = date('Y-m-d', $this->post_unix_time($post)) . '_' . urldecode($post->post_name);
-        return $this->dir . '/' . $this->post_folder . '/' . $dirname;
+        return "$this->dir/content/$this->posts_dir_name/$dirname";
     }
 
     /**

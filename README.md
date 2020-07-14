@@ -6,7 +6,7 @@ Hugo is a static site generator written in GoLang:
 This repo is a *personal fork* of
 https://github.com/SchumacherFM/wordpress-to-hugo-exporter v1.6:
 
-- Put posts in `content/` instead of `posts/` to match Hugo's
+- Put posts in `content/post/` instead of `posts/` to match Hugo's
   expectations
 - Enable comment export by default
 - Posts are index.md files in individual directories under `content/`,
