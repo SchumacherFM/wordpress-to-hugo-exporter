@@ -252,7 +252,7 @@ class Hugo_Export
                 'id' => $cid,
                 'type' => $ctype,
                 'date' => date('c', strtotime($comment->comment_date_gmt)),
-                'authorId' => $comment->user_id,
+                // comment->user_id is apparently unreliable, so skip it here :-(
                 'author' => $comment->comment_author,
                 'authorUrl' => $comment->comment_author_url
             );
