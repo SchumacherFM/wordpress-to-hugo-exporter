@@ -246,6 +246,10 @@ class Hugo_Export
         }
 
         $openid_comments = get_post_meta($post->ID, 'openid_comments', true);
+        // get_post_meta returns '' if not found
+        if ($openid_comments === '') {
+           $openid_comments = array();
+        }
 
         foreach ($comments as $comment) {
             $cid = $comment->comment_ID;
