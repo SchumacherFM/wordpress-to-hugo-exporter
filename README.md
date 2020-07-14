@@ -24,6 +24,8 @@ https://github.com/SchumacherFM/wordpress-to-hugo-exporter v1.6:
 - Put everything in root of zip file, not under another folder
 - Internal: Don't put trailing slashes on directory path strings; add
   trailing slash when concatenating instead
+- Special-case `openid_comments` postmeta by applying to comments
+  directly
 
 ## License
 

@@ -157,6 +157,9 @@ class Hugo_Export
             if (substr($key, 0, 1) == '_') {
                 continue;
             }
+            if ($key === "openid_comments") {
+                continue; // handled in convert_comments
+            }
             if (false === $this->_isEmpty($value)) {
                 $output[$key] = $value;
             }
@@ -240,6 +243,8 @@ class Hugo_Export
             return '';
         }
 
+        $openid_comments = get_post_meta($post->ID, 'openid_comments', true);
+
         foreach ($comments as $comment) {
             $cid = $comment->comment_ID;
             $ctype = get_comment_type($cid);
@@ -251,6 +256,9 @@ class Hugo_Export
                 'author' => $comment->comment_author,
                 'authorUrl' => $comment->comment_author_url
             );
+            if (in_array($cid, $openid_comments, true)) {
+                $meta['openID'] = true;
+            }
 
             $output = Spyc::YAMLDump($meta, false, 0);
             $output .= "\n---\n";
