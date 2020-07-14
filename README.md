@@ -15,8 +15,8 @@ https://github.com/SchumacherFM/wordpress-to-hugo-exporter v1.6:
 - Exclude default category (by hardcoded name)
 - Remove Markdown conversion (except for metadata framing)
 - Include pingbacks/trackbacks
-- Handle all-zeroes dates, including where GMT date is invalid but
-  non-GMT date is usable
+- Detect posts with all-zeroes dates, including where GMT date is
+  invalid but non-GMT date is usable, and treat them as undated
 - Change exporter to send zip file to stdout like CLI wrapper claims
   it will
 - Include instructions in CLI wrapper for multi-host setups

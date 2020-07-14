@@ -109,9 +109,8 @@ class Hugo_Export
 
         // Sometimes that one's invalid too!
         if ($use_date === '0000-00-00 00:00:00') {
-            // So if that fails, pick a valid but incorrect date.
-            // This one is before I started the blog.
-            $use_date = '2005-01-01 00:00:00';
+            // So just don't return one
+            return NULL;
         }
         return strtotime($use_date);
     }
@@ -125,8 +124,11 @@ class Hugo_Export
             'title' => html_entity_decode(get_the_title($post), ENT_QUOTES | ENT_XML1, 'UTF-8'),
             'author' => get_userdata($post->post_author)->display_name,
             'type' => get_post_type($post),
-            'date' => date('c', $this->post_unix_time($post)),
         );
+        $timestamp = $this->post_unix_time($post);
+        if (!is_null($timestamp)) {
+            $output['date'] = date('c', $timestamp);
+        }
         if (false === empty($post->post_excerpt)) {
             $output['excerpt'] = $post->post_excerpt;
         }
@@ -376,7 +378,12 @@ class Hugo_Export
      */
     function output_post_dir($post)
     {
-        $dirname = date('Y-m-d', $this->post_unix_time($post)) . '_' . urldecode($post->post_name);
+        $timestamp = $this->post_unix_time($post);
+        $date = 'UNDATED';
+        if (!is_null($timestamp)) {
+            $date = date('Y-m-d', $timestamp);
+        }
+        $dirname = $date . '_' . urldecode($post->post_name);
         return "$this->dir/content/$this->posts_dir_name/$dirname";
     }
 
