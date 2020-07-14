@@ -22,6 +22,8 @@ https://github.com/SchumacherFM/wordpress-to-hugo-exporter v1.6:
 - Include instructions in CLI wrapper for multi-host setups
 - Fix hugo config.yaml creation (correct keys, and simpler process)
 - Put everything in root of zip file, not under another folder
+- Internal: Don't put trailing slashes on directory path strings; add
+  trailing slash when concatenating instead
 
 ## License
 

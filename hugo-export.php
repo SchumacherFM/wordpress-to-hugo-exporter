@@ -327,11 +327,11 @@ class Hugo_Export
 
         WP_Filesystem();
 
-        $this->dir = $this->getTempDir() . 'wp-hugo-' . md5(time()) . '/';
+        $this->dir = $this->getTempDir() . 'wp-hugo-' . md5(time());
         $this->zip = $this->getTempDir() . 'wp-hugo.zip';
         $wp_filesystem->mkdir($this->dir);
-        $wp_filesystem->mkdir($this->dir . $this->post_folder);
-        $wp_filesystem->mkdir($this->dir . 'wp-content/');
+        $wp_filesystem->mkdir($this->dir . '/' . $this->post_folder);
+        $wp_filesystem->mkdir($this->dir . '/wp-content');
 
         $this->convert_options();
         $this->convert_posts();
@@ -359,7 +359,7 @@ class Hugo_Export
         //strip starting "---"
         $output = substr($output, 4);
 
-        $wp_filesystem->put_contents($this->dir . 'config.yaml', $output);
+        $wp_filesystem->put_contents($this->dir . '/config.yaml', $output);
     }
 
     /**
@@ -368,7 +368,7 @@ class Hugo_Export
     function output_post_dir($post)
     {
         $dirname = date('Y-m-d', $this->post_unix_time($post)) . '_' . urldecode($post->post_name);
-        return $this->dir . $this->post_folder . $dirname;
+        return $this->dir . '/' . $this->post_folder . '/' . $dirname;
     }
 
     /**
@@ -420,7 +420,7 @@ class Hugo_Export
             }
 
             //make path within zip relative to zip base, not server root
-            $local_path = str_replace($this->dir, '', $path);
+            $local_path = str_replace($this->dir . '/', '', $path);
 
             //add file
             $zip->addFile(realpath($path), $local_path);
@@ -475,7 +475,7 @@ class Hugo_Export
     {
 
         $upload_dir = wp_upload_dir();
-        $this->copy_recursive($upload_dir['basedir'], $this->dir . str_replace(trailingslashit(get_home_url()), '', $upload_dir['baseurl']));
+        $this->copy_recursive($upload_dir['basedir'], $this->dir . '/' . str_replace(trailingslashit(get_home_url()), '', $upload_dir['baseurl']));
     }
 
     /**
