@@ -124,6 +124,7 @@ class Hugo_Export
             'title' => html_entity_decode(get_the_title($post), ENT_QUOTES | ENT_XML1, 'UTF-8'),
             'author' => get_userdata($post->post_author)->display_name,
             'type' => get_post_type($post),
+            'id' => $post->ID,
         );
         $timestamp = $this->post_unix_time($post);
         if (!is_null($timestamp)) {

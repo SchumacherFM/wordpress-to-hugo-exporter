@@ -13,6 +13,7 @@ https://github.com/SchumacherFM/wordpress-to-hugo-exporter v1.6:
   and each comment is a separate Markdown file in that dir
 - Merge categories into tags
 - Exclude default category (by hardcoded name)
+- Add `id` to post metadata
 - Remove Markdown conversion (except for metadata framing)
 - Include pingbacks/trackbacks
 - Detect posts with all-zeroes dates, including where GMT date is
