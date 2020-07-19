@@ -8,6 +8,8 @@ https://github.com/SchumacherFM/wordpress-to-hugo-exporter v1.6:
 
 - Put posts in `content/post/` instead of `posts/` to match Hugo's
   expectations
+- Don't export pages, just posts (and drop the `type: post` from post
+  metadata)
 - Enable comment export by default
 - Posts are index.md files in individual directories under `content/`,
   and each comment is a separate Markdown file in that dir

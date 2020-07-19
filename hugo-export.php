@@ -2,7 +2,7 @@
 
 /*
 Plugin Name: WordPress to Hugo Exporter
-Description: Exports WordPress posts, pages, and options as YAML files parsable by Hugo
+Description: Exports WordPress posts, comments, and options as YAML/MD files parsable by Hugo
 Version: 1.3
 Author: Benjamin J. Balter
 Author URI: http://ben.balter.com
@@ -86,14 +86,14 @@ class Hugo_Export
     }
 
     /**
-     * Get an array of all post and page IDs
+     * Get an array of all post IDs
      * Note: We don't use core's get_posts as it doesn't scale as well on large sites
      */
     function get_posts()
     {
 
         global $wpdb;
-        return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status in ('publish', 'draft', 'private') AND post_type IN ('post', 'page' )");
+        return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status in ('publish', 'draft', 'private') AND post_type = 'post'");
     }
 
     protected function post_unix_time(WP_Post $post) {
@@ -123,7 +123,6 @@ class Hugo_Export
         $output = array(
             'title' => html_entity_decode(get_the_title($post), ENT_QUOTES | ENT_XML1, 'UTF-8'),
             'author' => get_userdata($post->post_author)->display_name,
-            'type' => get_post_type($post),
             'id' => $post->ID,
         );
         $timestamp = $this->post_unix_time($post);
@@ -146,11 +145,9 @@ class Hugo_Export
         }
 
         //turns permalink into 'url' format, since Hugo supports redirection on per-post basis
-        if ('page' !== $post->post_type) {
-            $output['url'] = urldecode(str_replace(home_url(), '', get_permalink($post)));
-        }
+        $output['url'] = urldecode(str_replace(home_url(), '', get_permalink($post)));
 
-        // check if the post or page has a Featured Image assigned to it.
+        // check if the post has a Featured Image assigned to it.
         if (has_post_thumbnail($post)) {
             $output['featured_image'] = str_replace(get_site_url(), "", get_the_post_thumbnail_url($post));
         }
