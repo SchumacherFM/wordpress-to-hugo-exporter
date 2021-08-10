@@ -96,9 +96,10 @@ environments, such as when `wp-content` isn't in the usual location.
 
 ## Changelog
 
-### 2.0
+### 2.0.X
 
 Updates the markdownify library, removes lots of unused code, AFAIK.
+Include GPL.
 
 ### Many other versions
 
