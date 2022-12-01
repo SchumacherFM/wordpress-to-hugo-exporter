@@ -99,7 +99,7 @@ class Hugo_Export
     {
 
         global $wpdb;
-        return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status in ('publish', 'draft', 'private') AND post_type IN ('post', 'page' )");
+        return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status in ('future', 'publish', 'draft', 'private') AND post_type IN ('post', 'page' )");
     }
 
     /**
