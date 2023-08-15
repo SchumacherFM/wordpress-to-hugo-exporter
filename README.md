@@ -94,6 +94,10 @@ wp hugo-export > export.zip
 The WP-CLI version will provide greater compatibility for alternate WordPress
 environments, such as when `wp-content` isn't in the usual location.
 
+## Now what?
+
+The exported files fit as input for Hugo. Please proceed with Hugo's [Quick start guide](https://gohugo.io/getting-started/quick-start/).
+
 ## Changelog
 
 ### 2.0.X
