@@ -66,7 +66,7 @@ above mentioned for a one time conversion of the XML file to the Hugo format.
 3. In the plugin section, go to `Add New`.
 4. Upload the zip of this repo.
 5. Activate the plugin.
-6. In the WP backend run the `Export to Hugo` command.
+6. In the WP backend run the `Export to Hugo` command located under the `Tools` menu.
 7. Collect the ZIP via download.
 8. Copy contents of the zip to your Hugo install and enjoy Hugo.
 
