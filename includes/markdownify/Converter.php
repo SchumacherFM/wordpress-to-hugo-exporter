@@ -556,8 +556,8 @@ class Converter
                     } else {
                         // reset indentation
                         $this->out($this->parser->node);
-                        static $indent;
-                        $this->indent = $indent;
+                        static $indent_reset;
+                        $this->indent = $indent_reset;
                     }
 
                     if (in_array($this->parent(), ['ins', 'del'])) {
