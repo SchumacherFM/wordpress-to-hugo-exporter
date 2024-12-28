@@ -37,6 +37,8 @@ containing `.md` files for each post in the proper Hugo naming convention.
 
 ## Usage at wordpress.com or any other hoster without SSH access
 
+### If you cannot install plugins in your wordpress.com instance
+
 (I've never tried it, because not a wp.com user)
 
 1. Login into the backend.
@@ -57,6 +59,17 @@ usage.
 Re Docker: It should be very easy to create a Dockerfile containing everything
 above mentioned for a one time conversion of the XML file to the Hugo format.
 
+### If you can install plugins in your wordpress.com instance
+
+1. Download this repo as a zip file.
+2. Login into the backend.
+3. In the plugin section, go to `Add New`.
+4. Upload the zip of this repo.
+5. Activate the plugin.
+6. In the WP backend run the `Export to Hugo` command.
+7. Collect the ZIP via download.
+8. Copy contents of the zip to your Hugo install and enjoy Hugo.
+
 ## Command-line Usage
 
 If you're having trouble with your web server timing out before the export is
@@ -67,6 +80,11 @@ It works just like the plugin, but produces the zipfile at `/tmp/wp-hugo.zip`:
 
     php hugo-export-cli.php
 
+
+If you want to offer a folder (say a mount point to a huge drive) other than using `/tmp` in OS, pass it as the first argument to the script:
+
+    php hugo-export-cli.php /YOUR_PATH_TO_TMP_FOLDER/
+
 Alternatively, if you have [WP-CLI](http://wp-cli.org) installed, you can run:
 
 ```
@@ -76,7 +94,20 @@ wp hugo-export > export.zip
 The WP-CLI version will provide greater compatibility for alternate WordPress
 environments, such as when `wp-content` isn't in the usual location.
 
+## Now what?
+
+The exported files fit as input for Hugo. Please proceed with Hugo's [Quick start guide](https://gohugo.io/getting-started/quick-start/).
+
 ## Changelog
+
+### 2.0.X
+
+Updates the markdownify library, removes lots of unused code, AFAIK.
+Include GPL.
+
+### Many other versions
+
+with tiny fixes
 
 ### 1.6
 

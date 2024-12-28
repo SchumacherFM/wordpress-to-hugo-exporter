@@ -3,9 +3,9 @@
 /*
 Plugin Name: WordPress to Hugo Exporter
 Description: Exports WordPress posts, pages, and options as YAML files parsable by Hugo
-Version: 1.3
-Author: Benjamin J. Balter
-Author URI: http://ben.balter.com
+Version: 2.0
+Author: Benjamin J. Balter / Cyrill Schumacher
+Author URI: https://cyrillschumacher.com
 License: GPLv3 or Later
 
 Copyright 2012-2013  Benjamin J. Balter  (email : Ben@Balter.com)
@@ -99,7 +99,7 @@ class Hugo_Export
     {
 
         global $wpdb;
-        return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status in ('publish', 'draft', 'private') AND post_type IN ('post', 'page' )");
+        return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status in ('future', 'publish', 'draft', 'private') AND post_type IN ('post', 'page' )");
     }
 
     /**
@@ -567,6 +567,8 @@ class Hugo_Export
         return $this->_tempDir;
     }
 }
+
+ini_set('display_errors', 0);
 
 $je = new Hugo_Export();
 
