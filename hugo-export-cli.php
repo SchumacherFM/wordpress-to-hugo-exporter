@@ -18,7 +18,22 @@ include_once "../../../wp-load.php";
 include_once "../../../wp-admin/includes/file.php";
 require_once "hugo-export.php";
 
-$tmpFolder = $argv[1];
+$args = $argv;
+$incrementalFlags = array('--incremental', '-i', 'incremental');
+$tmpFolder = null;
+$incrementalRequested = false;
+
+array_shift($args); // remove script name
+foreach ($args as $arg) {
+    $lower = strtolower($arg);
+    if (in_array($lower, $incrementalFlags, true)) {
+        $incrementalRequested = true;
+        continue;
+    }
+    if (null === $tmpFolder) {
+        $tmpFolder = $arg;
+    }
+}
 
 $je = new Hugo_Export();
 
@@ -33,6 +48,11 @@ if (isset($tmpFolder)) {
     
 } else {
     echo "[INFO] tmp folder not found, use default. You could invoke php hugo-export-cli.php with an extra argument as the temporary folder path if needful.";
+}
+
+if (true === $incrementalRequested) {
+    echo "[INFO] Incremental export requested.\n";
+    $je->enableIncrementalMode();
 }
 
 $je->export();

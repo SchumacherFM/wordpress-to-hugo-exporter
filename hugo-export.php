@@ -29,6 +29,13 @@ class Hugo_Export
     protected $_tempDir = null;
     private $zip_folder = 'hugo-export/'; //folder zip file extracts to
     private $post_folder = 'posts/'; //folder to place posts within
+    private $incrementalRequested = false;
+    private $incrementalActive = false;
+    private $seedIncrementalAfterRun = false;
+    private $lastSyncTimestamp = null;
+    private $currentSyncTime = null;
+    private $incrementalDirName = 'wp-hugo-incremental';
+    private $lastSyncFilename = 'wp-hugo-last-sync.timestamp';
 
     /**
      * Manually edit this private property and set it to TRUE if you want to export
@@ -99,7 +106,12 @@ class Hugo_Export
     {
 
         global $wpdb;
-        return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status in ('future', 'publish', 'draft', 'private') AND post_type IN ('post', 'page' )");
+        $sql = "SELECT ID FROM $wpdb->posts WHERE post_status in ('future', 'publish', 'draft', 'private') AND post_type IN ('post', 'page' )";
+        if (true === $this->incrementalActive && null !== $this->lastSyncTimestamp) {
+            $date = gmdate('Y-m-d H:i:s', $this->lastSyncTimestamp);
+            $sql .= $wpdb->prepare(" AND post_modified_gmt > %s", $date);
+        }
+        return $wpdb->get_col($sql);
     }
 
     /**
@@ -268,6 +280,12 @@ class Hugo_Export
         foreach ($this->get_posts() as $postID) {
             $post = get_post($postID);
             setup_postdata($post);
+            if (true === $this->incrementalActive && null !== $this->lastSyncTimestamp) {
+                $modifiedTime = strtotime($post->post_modified_gmt);
+                if (false !== $modifiedTime && $modifiedTime <= $this->lastSyncTimestamp) {
+                    continue;
+                }
+            }
             $meta = array_merge($this->convert_meta($post), $this->convert_terms($postID));
             // remove falsy values, which just add clutter
             foreach ($meta as $key => $value) {
@@ -323,17 +341,18 @@ class Hugo_Export
 
         WP_Filesystem();
 
-        $this->dir = $this->getTempDir() . 'wp-hugo-' . md5(time()) . '/';
+        $this->currentSyncTime = time();
         $this->zip = $this->getTempDir() . 'wp-hugo.zip';
-        $wp_filesystem->mkdir($this->dir);
-        $wp_filesystem->mkdir($this->dir . $this->post_folder);
-        $wp_filesystem->mkdir($this->dir . 'wp-content/');
+
+        $this->resolveExportDirectory();
+        $this->prepareExportDirectories();
 
         $this->convert_options();
         $this->convert_posts();
         $this->convert_uploads();
         $this->zip();
         $this->send();
+        $this->persistIncrementalState();
         $this->cleanup();
     }
 
@@ -468,7 +487,9 @@ class Hugo_Export
     function cleanup()
     {
         global $wp_filesystem;
-        $wp_filesystem->delete($this->dir, true);
+        if (false === $this->incrementalActive) {
+            $wp_filesystem->delete($this->dir, true);
+        }
         if ('cli' !== php_sapi_name()) {
             $wp_filesystem->delete($this->zip);
         }
@@ -521,7 +542,10 @@ class Hugo_Export
 
         // Simple copy for a file
         if (is_file($source)) {
-            return $wp_filesystem->copy($source, $dest);
+            if ($this->shouldSkipFileCopy($source, $dest)) {
+                return true;
+            }
+            return $wp_filesystem->copy($source, $dest, true);
         }
 
         // Make destination directory
@@ -548,6 +572,128 @@ class Hugo_Export
         return true;
     }
 
+    protected function resolveExportDirectory()
+    {
+        $base = trailingslashit($this->getTempDir());
+        $defaultDir = $base . 'wp-hugo-' . md5(time()) . '/';
+        $this->incrementalActive = false;
+        $this->lastSyncTimestamp = null;
+        $this->seedIncrementalAfterRun = false;
+
+        if (false === $this->incrementalRequested) {
+            $this->dir = $defaultDir;
+            return;
+        }
+
+        $incrementalDir = $base . $this->incrementalDirName . '/';
+        $existingTimestamp = $this->readLastSyncTimestamp();
+        if (false !== $existingTimestamp && is_dir($incrementalDir)) {
+            $this->incrementalActive = true;
+            $this->lastSyncTimestamp = $existingTimestamp;
+            $this->dir = $incrementalDir;
+            $this->logMessage('[INFO] Running incremental export.');
+            return;
+        }
+
+        $this->seedIncrementalAfterRun = true;
+        $this->logMessage('[WARN] Incremental state missing, performing full export.');
+        $this->dir = $defaultDir;
+    }
+
+    protected function prepareExportDirectories()
+    {
+        wp_mkdir_p($this->dir);
+        wp_mkdir_p($this->dir . $this->post_folder);
+        wp_mkdir_p($this->dir . 'wp-content/');
+    }
+
+    protected function persistIncrementalState()
+    {
+        if (false === $this->incrementalRequested) {
+            return;
+        }
+
+        if (true === $this->incrementalActive) {
+            $this->writeLastSyncTimestamp();
+            return;
+        }
+
+        if (true === $this->seedIncrementalAfterRun) {
+            $this->seedIncrementalDirectory();
+            $this->writeLastSyncTimestamp();
+        }
+    }
+
+    protected function seedIncrementalDirectory()
+    {
+        $target = trailingslashit($this->getTempDir()) . $this->incrementalDirName . '/';
+        if ($this->dir === $target) {
+            return;
+        }
+
+        global $wp_filesystem;
+
+        if (is_dir($target)) {
+            $wp_filesystem->delete($target, true);
+        }
+        wp_mkdir_p($target);
+
+        $prevState = $this->incrementalActive;
+        $this->incrementalActive = false;
+        $this->copy_recursive(untrailingslashit($this->dir), untrailingslashit($target));
+        $this->incrementalActive = $prevState;
+    }
+
+    protected function getIncrementalTimestampPath()
+    {
+        return trailingslashit($this->getTempDir()) . $this->lastSyncFilename;
+    }
+
+    protected function readLastSyncTimestamp()
+    {
+        $path = $this->getIncrementalTimestampPath();
+        if (!file_exists($path)) {
+            return false;
+        }
+        $contents = trim((string)@file_get_contents($path));
+        if ($contents === '') {
+            return false;
+        }
+        $timestamp = intval($contents);
+        return $timestamp > 0 ? $timestamp : false;
+    }
+
+    protected function writeLastSyncTimestamp()
+    {
+        $path = $this->getIncrementalTimestampPath();
+        $timestamp = null !== $this->currentSyncTime ? $this->currentSyncTime : time();
+        file_put_contents($path, $timestamp);
+    }
+
+    protected function logMessage($message)
+    {
+        if ('cli' === php_sapi_name()) {
+            echo $message . PHP_EOL;
+            return;
+        }
+        error_log($message);
+    }
+
+    protected function shouldSkipFileCopy($source, $dest)
+    {
+        if (false === $this->incrementalActive || null === $this->lastSyncTimestamp) {
+            return false;
+        }
+        if (!file_exists($dest)) {
+            return false;
+        }
+        $modified = @filemtime($source);
+        if (false === $modified) {
+            return false;
+        }
+        return $modified <= $this->lastSyncTimestamp;
+    }
+
     /**
      * @param null $tempDir
      */
@@ -565,6 +711,11 @@ class Hugo_Export
             $this->_tempDir = get_temp_dir();
         }
         return $this->_tempDir;
+    }
+
+    public function enableIncrementalMode()
+    {
+        $this->incrementalRequested = true;
     }
 }
 

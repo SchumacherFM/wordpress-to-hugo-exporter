@@ -85,6 +85,16 @@ If you want to offer a folder (say a mount point to a huge drive) other than usi
 
     php hugo-export-cli.php /YOUR_PATH_TO_TMP_FOLDER/
 
+### Incremental exports
+
+For large sites you can request an incremental export that only rewrites posts, pages, and uploads that changed since the last successful sync. Use the `--incremental` (or `-i`) flag:
+
+```
+php hugo-export-cli.php /YOUR_PATH_TO_TMP_FOLDER/ --incremental
+```
+
+The exporter keeps its working tree in `/YOUR_PATH_TO_TMP_FOLDER/wp-hugo-incremental` and the timestamp of the last sync in `/YOUR_PATH_TO_TMP_FOLDER/wp-hugo-last-sync.timestamp`. Do not delete those files between runs. If the folder or timestamp is missing when the flag is provided, the exporter falls back to a full sync and automatically seeds the incremental state for subsequent runs.
+
 Alternatively, if you have [WP-CLI](http://wp-cli.org) installed, you can run:
 
 ```
@@ -150,4 +160,3 @@ with tiny fixes
 ## License
 
 The project is licensed under the GPLv3 or later
-
