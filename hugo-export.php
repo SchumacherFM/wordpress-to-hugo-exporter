@@ -33,6 +33,7 @@ class Hugo_Export
     protected $preserve_export_dir = false;
     protected $clean_custom_dir = false;
     protected $skip_zip_creation = false;
+    protected $incremental_start_time = null;
 
     /**
      * Manually edit this private property and set it to TRUE if you want to export
@@ -96,6 +97,30 @@ class Hugo_Export
     }
 
     /**
+     * Limit the export to posts modified after the provided GMT timestamp.
+     *
+     * @param int|string|null $timestamp Unix timestamp or parseable datetime string in GMT.
+     */
+    public function setIncrementalStartTime($timestamp)
+    {
+        if (empty($timestamp)) {
+            $this->incremental_start_time = null;
+            return;
+        }
+
+        if (!is_int($timestamp)) {
+            $timestamp = strtotime($timestamp);
+        }
+
+        if (false === $timestamp) {
+            $this->incremental_start_time = null;
+            return;
+        }
+
+        $this->incremental_start_time = gmdate('Y-m-d H:i:s', $timestamp);
+    }
+
+    /**
      * Listens for page callback, intercepts and runs export
      */
     function callback()
@@ -131,7 +156,12 @@ class Hugo_Export
     {
 
         global $wpdb;
-        return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status in ('future', 'publish', 'draft', 'private') AND post_type IN ('post', 'page' )");
+        $sql = "SELECT ID FROM $wpdb->posts WHERE post_status in ('future', 'publish', 'draft', 'private') AND post_type IN ('post', 'page' )";
+        if ($this->incremental_start_time) {
+            $sql .= $wpdb->prepare(" AND post_modified_gmt >= %s", $this->incremental_start_time);
+        }
+
+        return $wpdb->get_col($sql);
     }
 
     /**

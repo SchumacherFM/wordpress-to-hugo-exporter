@@ -85,6 +85,8 @@ If you want to offer a folder (say a mount point to a huge drive) other than usi
 
     php hugo-export-cli.php /YOUR_PATH_TO_TMP_FOLDER/
 
+For folder-only exports (skip the zip archive and leave files under `/YOUR_PATH_TO_TMP_FOLDER/hugo-export-files`), append `--no-zip`. You can further limit the export to content updated since the previous folder export by adding `--incremental` (must be combined with `--no-zip`). Incremental mode looks for a `.last_sync` marker file inside the export folder and will only regenerate posts changed since that timestamp (with a 5-minute safety window). The marker is updated automatically after each folder export.
+
 Alternatively, if you have [WP-CLI](http://wp-cli.org) installed, you can run:
 
 ```
@@ -150,4 +152,3 @@ with tiny fixes
 ## License
 
 The project is licensed under the GPLv3 or later
-
