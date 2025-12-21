@@ -47,6 +47,7 @@ foreach ($args as $arg) {
 }
 
 $je = new Hugo_Export();
+$exportStartTime = microtime(true);
 
 if (isset($tmpFolder)) {
     if ('null' !== strtolower($tmpFolder) && is_dir($tmpFolder)) {
@@ -106,6 +107,22 @@ if ($folderOnly) {
 }
 
 $je->export();
+$elapsedSeconds = microtime(true) - $exportStartTime;
+$hourInSeconds = defined('HOUR_IN_SECONDS') ? HOUR_IN_SECONDS : 3600;
+$minuteInSeconds = defined('MINUTE_IN_SECONDS') ? MINUTE_IN_SECONDS : 60;
+$hours = (int) floor($elapsedSeconds / $hourInSeconds);
+$minutes = (int) floor(($elapsedSeconds % $hourInSeconds) / $minuteInSeconds);
+$seconds = (int) round($elapsedSeconds - ($hours * $hourInSeconds) - ($minutes * $minuteInSeconds));
+$seconds = ($seconds === 60) ? 59 : $seconds;
+echo "[INFO] Export completed in {$hours}h{$minutes}m{$seconds}s\n";
+
+if (!$folderOnly) {
+    echo "[SUGGESTION] Use --no-zip to skip archive creation and speed up future exports.\n";
+}
+
+if (!$incrementalExport) {
+    echo "[SUGGESTION] Use --incremental with --no-zip to only sync recent changes for faster runs.\n";
+}
 
 if ($folderExportPath) {
     echo "[INFO] Hugo files exported to $folderExportPath\n";
