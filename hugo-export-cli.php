@@ -28,6 +28,7 @@ $tmpFolder = null;
 $folderOnly = false;
 $incrementalExport = false;
 $folderFlags = array('--no-zip', '--folder-only');
+$incrementalNoChangesExitCode = 3; // Keep in sync with bin/sync.sh
 
 foreach ($args as $arg) {
     if (in_array($arg, $folderFlags, true)) {
@@ -104,6 +105,18 @@ if ($folderOnly) {
     echo "[INFO] Folder-only export enabled. $logAction to $folderExportPath\n";
     $je->setCustomExportDir($folderExportPath, true, $shouldCleanExportDir);
     $je->skipZipCreation(true);
+}
+
+if ($incrementalExport && $je->hasIncrementalStartTime()) {
+    $postsToProcess = $je->get_posts();
+    $postCount = is_array($postsToProcess) ? count($postsToProcess) : 0;
+    if (0 === $postCount) {
+        $startTime = $je->getIncrementalStartTime();
+        $startDescription = $startTime ? " at or after $startTime" : "";
+        echo "[INFO] Incremental export detected no posts modified{$startDescription}. Nothing to export.\n";
+        exit($incrementalNoChangesExitCode);
+    }
+    echo "[INFO] Incremental export will process $postCount post(s) modified since {$je->getIncrementalStartTime()}.\n";
 }
 
 $je->export();

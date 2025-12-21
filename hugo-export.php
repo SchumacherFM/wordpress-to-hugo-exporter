@@ -120,6 +120,16 @@ class Hugo_Export
         $this->incremental_start_time = gmdate('Y-m-d H:i:s', $timestamp);
     }
 
+    public function hasIncrementalStartTime()
+    {
+        return !empty($this->incremental_start_time);
+    }
+
+    public function getIncrementalStartTime()
+    {
+        return $this->incremental_start_time;
+    }
+
     /**
      * Listens for page callback, intercepts and runs export
      */
