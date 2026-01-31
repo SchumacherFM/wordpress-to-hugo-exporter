@@ -29,6 +29,11 @@ class Hugo_Export
     protected $_tempDir = null;
     private $zip_folder = 'hugo-export/'; //folder zip file extracts to
     private $post_folder = 'posts/'; //folder to place posts within
+    protected $custom_export_dir = null;
+    protected $preserve_export_dir = false;
+    protected $clean_custom_dir = false;
+    protected $skip_zip_creation = false;
+    protected $incremental_start_time = null;
 
     /**
      * Manually edit this private property and set it to TRUE if you want to export
@@ -61,6 +66,68 @@ class Hugo_Export
 
         add_action('admin_menu', array(&$this, 'register_menu'));
         add_action('current_screen', array(&$this, 'callback'));
+    }
+
+    /**
+     * Allows the export directory to be overridden (mainly for CLI usage).
+     *
+     * @param string $path Absolute path for the folder.
+     * @param bool $preserveAfterExport Keep the folder after export completes.
+     * @param bool $cleanBeforeExport Remove the folder before starting.
+     */
+    public function setCustomExportDir($path, $preserveAfterExport = false, $cleanBeforeExport = false)
+    {
+        if (empty($path)) {
+            return;
+        }
+
+        $this->custom_export_dir = untrailingslashit($path);
+        $this->preserve_export_dir = (bool)$preserveAfterExport;
+        $this->clean_custom_dir = (bool)$cleanBeforeExport;
+    }
+
+    /**
+     * Skip generating a zip archive and leave the rendered files on disk.
+     *
+     * @param bool $skip
+     */
+    public function skipZipCreation($skip = true)
+    {
+        $this->skip_zip_creation = (bool)$skip;
+    }
+
+    /**
+     * Limit the export to posts modified after the provided GMT timestamp.
+     *
+     * @param int|string|null $timestamp Unix timestamp or parseable datetime string in GMT.
+     */
+    public function setIncrementalStartTime($timestamp)
+    {
+        if (empty($timestamp)) {
+            $this->incremental_start_time = null;
+            return;
+        }
+
+        if (!is_int($timestamp)) {
+            $timestamp = strtotime($timestamp);
+        }
+
+        if (false === $timestamp) {
+            $this->incremental_start_time = null;
+            return;
+        }
+
+        $this->incremental_start_time = gmdate('Y-m-d H:i:s', $timestamp);
+    }
+
+    public function hasIncrementalStartTime()
+    {
+        return !empty($this->incremental_start_time);
+    }
+
+    public function getIncrementalStartTime()
+    {
+        return $this->incremental_start_time;
     }
 
     /**
@@ -99,7 +166,12 @@ class Hugo_Export
     {
 
         global $wpdb;
-        return $wpdb->get_col("SELECT ID FROM $wpdb->posts WHERE post_status in ('future', 'publish', 'draft', 'private') AND post_type IN ('post', 'page' )");
+        $sql = "SELECT ID FROM $wpdb->posts WHERE post_status in ('future', 'publish', 'draft', 'private') AND post_type IN ('post', 'page' )";
+        if ($this->incremental_start_time) {
+            $sql .= $wpdb->prepare(" AND post_modified_gmt >= %s", $this->incremental_start_time);
+        }
+
+        return $wpdb->get_col($sql);
     }
 
     /**
@@ -323,17 +395,34 @@ class Hugo_Export
 
         WP_Filesystem();
 
-        $this->dir = $this->getTempDir() . 'wp-hugo-' . md5(time()) . '/';
+        if ($this->custom_export_dir) {
+            $this->dir = trailingslashit($this->custom_export_dir);
+            if ($this->clean_custom_dir && file_exists($this->dir)) {
+                $wp_filesystem->delete($this->dir, true);
+            }
+        } else {
+            $this->dir = $this->getTempDir() . 'wp-hugo-' . md5(time()) . '/';
+        }
         $this->zip = $this->getTempDir() . 'wp-hugo.zip';
-        $wp_filesystem->mkdir($this->dir);
-        $wp_filesystem->mkdir($this->dir . $this->post_folder);
-        $wp_filesystem->mkdir($this->dir . 'wp-content/');
+        if (!file_exists($this->dir)) {
+            $wp_filesystem->mkdir($this->dir);
+        }
+        if (!file_exists($this->dir . $this->post_folder)) {
+            $wp_filesystem->mkdir($this->dir . $this->post_folder);
+        }
+        if (!file_exists($this->dir . 'wp-content/')) {
+            $wp_filesystem->mkdir($this->dir . 'wp-content/');
+        }
 
         $this->convert_options();
         $this->convert_posts();
         $this->convert_uploads();
-        $this->zip();
-        $this->send();
+
+        if (!$this->skip_zip_creation) {
+            $this->zip();
+            $this->send();
+        }
+
         $this->cleanup();
     }
 
@@ -468,8 +557,10 @@ class Hugo_Export
     function cleanup()
     {
         global $wp_filesystem;
-        $wp_filesystem->delete($this->dir, true);
-        if ('cli' !== php_sapi_name()) {
+        if (!$this->preserve_export_dir) {
+            $wp_filesystem->delete($this->dir, true);
+        }
+        if ('cli' !== php_sapi_name() && !$this->skip_zip_creation) {
             $wp_filesystem->delete($this->zip);
         }
     }
